@@ -111,7 +111,7 @@ export default function Home() {
             className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto"
           >
             我是一名全栈开发者，热衷于构建现代化的 Web 应用。
-            在这里，你可以了解我的项目、阅读我的技术博客，以及更多关于我的信息。以及，我是李忠瑞的爹。
+            在这里，你可以了解我的项目、阅读我的技术博客，以及更多关于我的信息。
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4">
