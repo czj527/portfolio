@@ -2,15 +2,15 @@ import type { NextConfig } from 'next';
 import path from 'path';
 
 // GitHub Pages 配置
-// 如果你的仓库名不是 'portfolio'，请修改下面的 REPO_NAME
-// 部署后访问路径将是: https://yourusername.github.io/portfolio/
+// GitHub Pages 的访问路径格式: https://username.github.io/portfolio/
+// 所以 basePath 应该设置为 '/portfolio'
 const REPO_NAME = 'portfolio';
 
 const nextConfig: NextConfig = {
   // outputFileTracingRoot: path.resolve(__dirname, '../../'),
   // GitHub Pages 静态导出配置
   output: 'export',
-  basePath: REPO_NAME === 'portfolio' ? '' : `/${REPO_NAME}`,
+  basePath: `/${REPO_NAME}`,  // 必须设置为 /portfolio
   trailingSlash: true, // 添加尾部斜杠以避免 404 错误
 
   // 开发环境配置
