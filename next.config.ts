@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   // outputFileTracingRoot: path.resolve(__dirname, '../../'),
   // GitHub Pages 静态导出配置
   output: 'export',
-  basePath: `/${REPO_NAME}`,  // 必须设置为 /portfolio
+  basePath: '/portfolio',  // 必须设置为 /portfolio
   trailingSlash: true, // 添加尾部斜杠以避免 404 错误
 
   // 开发环境配置
