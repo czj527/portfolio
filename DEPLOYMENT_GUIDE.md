@@ -19,7 +19,7 @@
 
 ### 1️⃣ 阅读文档
 
-首先阅读 `GITHUB_PAGES_DEPLOY.md` 文档，了解完整的部署流程。
+首先阅读 `GITHUB_PAGES_DEPLOY.md` 文档，了解完整的部署流程。fuck
 
 ### 2️⃣ 检查清单
 
