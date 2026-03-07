@@ -30,7 +30,14 @@ export default function Navigation() {
             <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="text-xl font-bold gradient-text"
+              className="text-xl font-bold"
+              style={{
+                background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                color: 'var(--primary)',
+              }}
             >
               Portfolio
             </motion.div>

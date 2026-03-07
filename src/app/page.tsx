@@ -73,14 +73,28 @@ export default function Home() {
 
           <motion.h1
             variants={itemVariants}
-            className="text-5xl md:text-7xl font-bold mb-6 gradient-text"
+            className="text-5xl md:text-7xl font-bold mb-6"
+            style={{
+              background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'var(--primary)',
+            }}
           >
             你好  我是长岛冰茶 
 
           </motion.h1>
           <motion.h1
             variants={itemVariants}
-            className="text-5xl md:text-7xl font-bold mb-6 gradient-text"
+            className="text-5xl md:text-7xl font-bold mb-6"
+            style={{
+              background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'var(--primary)',
+            }}
           >
             欢迎访问我的个人网站
           </motion.h1>
