@@ -9,7 +9,7 @@
     "lint": "eslint",
     "start": "bash ./scripts/start.sh",
     "ts-check": "tsc -p tsconfig.json",
-    "export": "next build && node scripts/clean-export.js",
+    "export": "next build",
     "deploy": "pnpm export && git checkout -b gh-pages && git add -f out && git commit -m 'Deploy to GitHub Pages' && git subtree push --prefix out origin gh-pages"
   },
   "dependencies": {
