@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Github, Heart } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/config';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -82,7 +83,7 @@ export default function About() {
               }}
             />
             <img
-              src="/avatar.jpg"
+              src={SITE_CONFIG.getImagePath('/avatar.jpg')}
               alt="个人头像"
               className="relative w-32 h-32 rounded-full object-cover border-4 border-background shadow-2xl"
             />
@@ -198,7 +199,7 @@ export default function About() {
                 className="flex items-center gap-4 hover:bg-accent/50 p-3 rounded-lg transition-colors"
               >
                 <div className="p-3 bg-primary/10 rounded-lg">
-                  <img src="/qq-icon.png" alt="QQ" className="w-6 h-6" />
+                  <img src={SITE_CONFIG.getImagePath('/qq-icon.png')} alt="QQ" className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">QQ</p>

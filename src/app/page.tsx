@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Github, Linkedin, Mail, Sparkles, Code, PenTool, Briefcase, MessageSquare } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/config';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -63,7 +64,7 @@ export default function Home() {
                 }}
               />
               <img
-                src="/avatar.jpg"
+                src={SITE_CONFIG.getImagePath('/avatar.jpg')}
                 alt="个人头像"
                 className="relative w-40 h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-background shadow-2xl"
               />
