@@ -1,0 +1,19 @@
+[33mcommit 64c5796f536cd27b5257366f085c51d13ad7e7ab[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: chen-zijie111 <2719398856@qq.com>
+Date:   Sat Mar 7 11:45:52 2026 +0800
+
+    3
+
+[1mdiff --git a/package.json b/package.json[m
+[1mindex 4c7e09e..8918c0d 100644[m
+[1m--- a/package.json[m
+[1m+++ b/package.json[m
+[36m@@ -9,7 +9,7 @@[m
+     "lint": "eslint",[m
+     "start": "bash ./scripts/start.sh",[m
+     "ts-check": "tsc -p tsconfig.json",[m
+[31m-    "export": "next build && node scripts/clean-export.js",[m
+[32m+[m[32m    "export": "next build",[m
+     "deploy": "pnpm export && git checkout -b gh-pages && git add -f out && git commit -m 'Deploy to GitHub Pages' && git subtree push --prefix out origin gh-pages"[m
+   },[m
+   "dependencies": {[m
