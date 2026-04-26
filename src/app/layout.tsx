@@ -1,18 +1,18 @@
-import type { Metadata } from 'next';
-import { Inspector } from 'react-dev-inspector';
-import './globals.css';
-import Navigation from '@/components/Navigation';
+import type { Metadata } from 'next'
+import './globals.css'
+import Navigation from '@/components/Navigation'
+import { ThemeProvider } from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
   title: {
-    default: '我的个人网站',
-    template: '%s | 我的个人网站',
+    default: '陈子杰的个人博客',
+    template: '%s | 陈子杰的个人博客',
   },
   description: '展示我的项目、博客和个人简介',
-  keywords: ['个人网站', '项目展示', '博客', '简介'],
-  authors: [{ name: 'Your Name' }],
+  keywords: ['个人网站', '项目展示', '博客', '技术', '全栈开发'],
+  authors: [{ name: '陈子杰' }],
   openGraph: {
-    title: '我的个人网站',
+    title: '陈子杰的个人博客',
     description: '展示我的项目、博客和个人简介',
     type: 'website',
   },
@@ -20,24 +20,23 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
-  const isDev = process.env.NODE_ENV === 'development';
-
   return (
-    <html lang="zh-CN">
-      <body className={`antialiased`}>
-        {isDev && <Inspector />}
-        <Navigation />
-        <main className="min-h-screen">
-          {children}
-        </main>
+    <html lang="zh-CN" suppressHydrationWarning>
+      <body className="antialiased">
+        <ThemeProvider>
+          <Navigation />
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

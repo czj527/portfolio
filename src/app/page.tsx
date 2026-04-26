@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Github, Linkedin, Mail, Sparkles, Code, PenTool, Briefcase, MessageSquare } from 'lucide-react';
+import { ArrowRight, Github, Linkedin, Mail, Sparkles, Code, PenTool, Briefcase, MessageSquare, ExternalLink, Folder } from 'lucide-react';
 import { SITE_CONFIG } from '@/lib/config';
+import { useState, useEffect } from 'react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,7 +27,26 @@ const itemVariants = {
   },
 };
 
+interface HomeProject {
+  id: number
+  title: string
+  description: string
+  techStack: string
+  githubUrl: string | null
+}
+
 export default function Home() {
+  const [HomeProjects, setHomeProjects] = useState<HomeProject[]>([])
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setHomeProjects(data)
+      })
+      .catch(console.error)
+  }, [])
+
   return (
     <div className="pt-16">
       {/* Hero Section */}
@@ -64,7 +84,7 @@ export default function Home() {
                 }}
               />
               <img
-                src={SITE_CONFIG.getImagePath('/avatar.jpg')}
+                src="/avatar.jpg"
                 alt="个人头像"
                 className="relative w-40 h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-background shadow-2xl"
               />
@@ -214,40 +234,57 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* CTA Section */}
+      {/* GitHub Projects Preview */}
       <section className="py-20 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto"
+          className="max-w-6xl mx-auto"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-            本网站能做什么？
-          </h2>
-          <div className="text-lg text-muted-foreground mb-8 ml-[25%]">
-            <p className="mb-8">
-              1、查看我的项目集，了解更多关于我的技术能力和实践经验
-            </p>
-            <p className="mb-8">
-              2、查看我的博客集，了解我过去和最新的思考内容
-            </p>
-            <p className="mb-8">
-              3、联系我，或者在本网站进行留言
-            </p>
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold">精选项目</h2>
+            <Link href="/projects" className="text-sm text-primary hover:underline flex items-center gap-1">
+              查看全部 <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-          <div className="text-center">
-            {/* <Link href="/projects">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
-              >
-                浏览所有项目
-                <ArrowRight className="w-5 h-5 ml-2 inline" />
-              </motion.button>
-            </Link> */}
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {HomeProjects.length > 0 ? (
+              HomeProjects.slice(0, 3).map((project: HomeProject, index: number) => (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -4 }}
+                  className="group p-6 rounded-2xl border border-border bg-card hover:shadow-xl hover:border-primary/30 transition-all duration-500"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <Folder className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{project.description}</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.techStack.split(',').slice(0, 4).map((tech) => (
+                      <span key={tech} className="px-2 py-1 text-xs rounded-md bg-muted text-muted-foreground font-mono">
+                        {tech.trim()}
+                      </span>
+                    ))}
+                  </div>
+                  <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+                    <Github className="w-4 h-4" /> GitHub
+                  </a>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12 text-muted-foreground">
+                <Folder className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>暂无项目展示</p>
+              </div>
+            )}
           </div>
         </motion.div>
       </section>

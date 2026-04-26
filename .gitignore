@@ -97,3 +97,7 @@ Desktop.ini
 .turbo
 
 .coze-logs
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal

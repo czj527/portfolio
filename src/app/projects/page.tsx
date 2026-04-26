@@ -1,71 +1,51 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { ExternalLink, Edit } from 'lucide-react';
-import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Github, ExternalLink, Folder } from 'lucide-react'
 
 interface Project {
-  id: string;
-  name: string;
-  description: string;
-  tags: string[] | null;
-  link: string;
-  created_at: string;
+  id: number
+  title: string
+  description: string
+  techStack: string
+  imageUrl: string | null
+  githubUrl: string | null
+  demoUrl: string | null
+  order: number
+  createdAt: string
 }
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.1 },
   },
-};
+}
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.5,
-    },
+    transition: { duration: 0.5 },
   },
-};
+}
 
-export default function Projects() {
-  // 创建 Supabase 客户端（在组件内部，确保环境变量已加载）
-  const supabase = useMemo(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-    return createClient(supabaseUrl, supabaseAnonKey);
-  }, []);
-
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProjects(data || []);
-    } catch (error) {
-      console.error('Failed to fetch projects:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    fetch('/api/projects')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setProjects(data)
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
+  }, [])
 
   return (
     <div className="pt-24 pb-20 px-4">
@@ -73,124 +53,76 @@ export default function Projects() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto"
+        className="max-w-6xl mx-auto"
       >
-        {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">我的项目</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            这里展示了我参与和开发的各种项目，包括开源项目、商业项目和个人项目
+            这里展示了我参与和开发的各种项目
           </p>
         </div>
 
-        {/* Projects Grid */}
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">
-            加载中...
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="animate-pulse p-6 rounded-2xl border border-border bg-card">
+                <div className="h-12 w-12 bg-muted rounded-xl mb-4" />
+                <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+              </div>
+            ))}
           </div>
         ) : projects.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">📦</div>
-            <p className="text-xl text-muted-foreground">暂无项目</p>
+          <div className="text-center py-20">
+            <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
+            <p className="text-muted-foreground text-lg">暂无项目</p>
           </div>
         ) : (
           <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {projects.map((project) => (
+            {projects.map((project, index) => (
               <motion.div
                 key={project.id}
                 variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-                className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow card-hover"
+                whileHover={{ y: -4 }}
+                className="group p-6 rounded-2xl border border-border bg-card hover:shadow-xl hover:border-primary/30 transition-all duration-500"
               >
-                {/* Project Image */}
-                <div className="relative h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                  <div className="text-6xl">🚀</div>
-                  <motion.div
-                    className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-4"
-                    whileHover={{ opacity: 1 }}
-                  >
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 bg-white text-black rounded-full hover:scale-110 transition-transform"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-                  </motion.div>
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Folder className="w-6 h-6 text-primary" />
                 </div>
-
-                {/* Project Content */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">{project.name}</h3>
-                  <p className="text-muted-foreground mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-
-                  {/* Tags */}
-                  {project.tags && project.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Date */}
-                  <div className="text-sm text-muted-foreground">
-                    创建于 {new Date(project.created_at).toLocaleDateString('zh-CN')}
+                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{project.description}</p>
+                {project.techStack && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.techStack.split(',').map((tech) => (
+                      <span key={tech} className="px-2.5 py-1 text-xs rounded-md bg-muted text-muted-foreground font-mono">
+                        {tech.trim()}
+                      </span>
+                    ))}
                   </div>
+                )}
+                <div className="flex items-center gap-4 pt-4 border-t border-border">
+                  {project.githubUrl && (
+                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+                      <Github className="w-4 h-4" /> GitHub
+                    </a>
+                  )}
+                  {project.demoUrl && (
+                    <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+                      <ExternalLink className="w-4 h-4" /> Demo
+                    </a>
+                  )}
                 </div>
               </motion.div>
             ))}
           </motion.div>
         )}
-
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-16 text-center"
-        >
-          <p className="text-muted-foreground">
-            想了解更多项目细节？欢迎通过
-            <Link
-              href="/about"
-              className="text-primary hover:underline ml-1"
-            >
-              关于页面
-            </Link>
-            联系我
-          </p>
-        </motion.div>
       </motion.div>
-
-      {/* Management Button */}
-      <Link href="/projects/manage">
-        <motion.button
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="fixed bottom-6 right-6 flex items-center gap-2 px-5 py-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all text-sm shadow-lg z-40"
-          title="管理项目"
-        >
-          <Edit className="w-4 h-4" />
-          <span>管理</span>
-        </motion.button>
-      </Link>
     </div>
-  );
+  )
 }

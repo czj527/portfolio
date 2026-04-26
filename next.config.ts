@@ -1,30 +1,16 @@
 import type { NextConfig } from 'next';
-import path from 'path';
-
-// GitHub Pages 配置
-// GitHub Pages 的访问路径格式: https://username.github.io/portfolio/
-// 所以 basePath 应该设置为 '/portfolio'
-const REPO_NAME = 'portfolio';
 
 const nextConfig: NextConfig = {
-  // outputFileTracingRoot: path.resolve(__dirname, '../../'),
-  // GitHub Pages 静态导出配置
-  output: 'export',
-  basePath: '/portfolio',  // 必须设置为 /portfolio
-  trailingSlash: true, // 添加尾部斜杠以避免 404 错误
-
-  // 开发环境配置
-  allowedDevOrigins: ['*.dev.coze.site'],
   images: {
-    unoptimized: true, // 静态导出需要禁用图片优化
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'lf-coze-web-cdn.coze.cn',
+        hostname: 'avatars.githubusercontent.com',
         pathname: '/**',
       },
     ],
   },
+  serverExternalPackages: ['@prisma/client'],
 };
 
 export default nextConfig;
