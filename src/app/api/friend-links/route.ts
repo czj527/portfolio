@@ -1,13 +1,14 @@
 import { prisma } from '@/lib/prisma'
+import { SEED_FRIEND_LINKS } from '@/lib/seed-data'
 
 export async function GET() {
   try {
-    const links = await prisma.friendLink.findMany({
-      orderBy: { order: 'asc' },
-    })
-    return Response.json(links)
-  } catch (error) {
-    console.error('Failed to fetch friend links:', error)
-    return Response.json({ error: 'Failed to fetch friend links' }, { status: 500 })
+    try {
+      const links = await prisma.friendLink.findMany({ orderBy: { order: 'asc' } })
+      if (links.length > 0) return Response.json(links)
+    } catch { /* fall back to seed */ }
+    return Response.json(SEED_FRIEND_LINKS)
+  } catch {
+    return Response.json([])
   }
 }

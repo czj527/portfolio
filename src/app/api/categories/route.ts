@@ -1,13 +1,14 @@
 import { prisma } from '@/lib/prisma'
+import { SEED_CATEGORIES } from '@/lib/seed-data'
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      include: { _count: { select: { posts: true } } },
-    })
-    return Response.json(categories)
-  } catch (error) {
-    console.error('Failed to fetch categories:', error)
-    return Response.json({ error: 'Failed to fetch categories' }, { status: 500 })
+    try {
+      const categories = await prisma.category.findMany({ include: { _count: { select: { posts: true } } } })
+      if (categories.length > 0) return Response.json(categories)
+    } catch { /* fall back to seed */ }
+    return Response.json(SEED_CATEGORIES)
+  } catch {
+    return Response.json([])
   }
 }

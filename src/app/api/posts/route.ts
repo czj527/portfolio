@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest } from 'next/server'
+import { SEED_POSTS } from '@/lib/seed-data'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,56 +12,46 @@ export async function GET(request: NextRequest) {
     const tag = searchParams.get('tag')
     const search = searchParams.get('search')
 
-    const where: any = {}
+    let posts: any[] = []
+    let total = 0
 
-    if (published !== 'false') {
-      where.published = true
+    try {
+      const where: any = {}
+      if (published !== 'false') where.published = true
+      if (category) where.category = { slug: category }
+      if (tag) where.tags = { some: { tag: { slug: tag } } }
+      if (search) where.OR = [{ title: { contains: search } }, { content: { contains: search } }]
+
+      const [dbPosts, dbTotal] = await Promise.all([
+        prisma.post.findMany({
+          where,
+          include: { category: { select: { name: true, slug: true } }, tags: { include: { tag: { select: { id: true, name: true, slug: true } } }, take: 5 }, _count: { select: { comments: true, likes: true } } },
+          orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+          skip: (page - 1) * limit, take: limit,
+        }),
+        prisma.post.count({ where }),
+      ])
+
+      if (dbTotal > 0) {
+        posts = dbPosts.map(p => ({ ...p, tags: p.tags.map((t: any) => t.tag) }))
+        total = dbTotal
+      }
+    } catch { /* prisma may fail on Vercel, fall back to seed */ }
+
+    if (total === 0) {
+      let filtered = SEED_POSTS.filter(p => {
+        if (published !== 'false' && !p.published) return false
+        if (category && p.category?.slug !== category) return false
+        if (tag && !p.tags.some(t => t.slug === tag)) return false
+        if (search && !p.title.includes(search) && !p.content.includes(search)) return false
+        return true
+      })
+      total = filtered.length
+      posts = filtered.slice((page - 1) * limit, page * limit)
     }
 
-    if (category) {
-      where.category = { slug: category }
-    }
-
-    if (tag) {
-      where.tags = { some: { tag: { slug: tag } } }
-    }
-
-    if (search) {
-      where.OR = [
-        { title: { contains: search } },
-        { content: { contains: search } },
-      ]
-    }
-
-    const [posts, total] = await Promise.all([
-      prisma.post.findMany({
-        where,
-        include: {
-          category: { select: { name: true, slug: true } },
-          tags: {
-            include: { tag: { select: { id: true, name: true, slug: true } } },
-            take: 5,
-          },
-          _count: { select: { comments: true, likes: true } },
-        },
-        orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.post.count({ where }),
-    ])
-
-    return Response.json({
-      posts: posts.map((post) => ({
-        ...post,
-        tags: post.tags.map((t) => t.tag),
-      })),
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    })
-  } catch (error) {
-    console.error('Failed to fetch posts:', error)
-    return Response.json({ error: 'Failed to fetch posts' }, { status: 500 })
+    return Response.json({ posts, total, page, totalPages: Math.max(1, Math.ceil(total / limit)) })
+  } catch {
+    return Response.json({ posts: [], total: 0, page: 1, totalPages: 1 })
   }
 }

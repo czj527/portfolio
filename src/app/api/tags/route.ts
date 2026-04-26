@@ -1,13 +1,14 @@
 import { prisma } from '@/lib/prisma'
+import { SEED_TAGS } from '@/lib/seed-data'
 
 export async function GET() {
   try {
-    const tags = await prisma.tag.findMany({
-      include: { _count: { select: { posts: true } } },
-    })
-    return Response.json(tags)
-  } catch (error) {
-    console.error('Failed to fetch tags:', error)
-    return Response.json({ error: 'Failed to fetch tags' }, { status: 500 })
+    try {
+      const tags = await prisma.tag.findMany({ include: { _count: { select: { posts: true } } } })
+      if (tags.length > 0) return Response.json(tags)
+    } catch { /* fall back to seed */ }
+    return Response.json(SEED_TAGS)
+  } catch {
+    return Response.json([])
   }
 }

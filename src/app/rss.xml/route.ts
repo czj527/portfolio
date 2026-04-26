@@ -1,28 +1,33 @@
 import { prisma } from '@/lib/prisma'
+import { SEED_POSTS } from '@/lib/seed-data'
 
 export async function GET() {
   try {
-    const posts = await prisma.post.findMany({
-      where: { published: true },
-      include: {
-        category: { select: { name: true } },
-        tags: { include: { tag: { select: { name: true } } } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-    })
+    let posts: any[] = []
+    try {
+      posts = await prisma.post.findMany({
+        where: { published: true },
+        include: { category: { select: { name: true } }, tags: { include: { tag: { select: { name: true } } } } },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      })
+    } catch { /* fall back to seed */ }
 
-    const host = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    if (posts.length === 0) {
+      posts = SEED_POSTS.filter(p => p.published)
+    }
 
-    const items = posts.map((post) => `
+    const host = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio-lovat-theta-63.vercel.app'
+
+    const items = posts.map((post: any) => `
     <item>
       <title>${escapeXml(post.title)}</title>
       <link>${host}/blog/${post.slug}</link>
       <guid>${host}/blog/${post.slug}</guid>
-      <description>${escapeXml(post.excerpt || post.content.slice(0, 200))}</description>
+      <description>${escapeXml(post.excerpt || post.content?.slice(0, 200) || '')}</description>
       <pubDate>${new Date(post.createdAt).toUTCString()}</pubDate>
       ${post.category ? `<category>${escapeXml(post.category.name)}</category>` : ''}
-      ${post.tags.map((t) => `<category>${escapeXml(t.tag.name)}</category>`).join('\n      ')}
+      ${(post.tags || []).map((t: any) => `<category>${escapeXml(t.name || t.tag?.name || '')}</category>`).join('\n      ')}
     </item>`).join('')
 
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
@@ -37,22 +42,12 @@ export async function GET() {
   </channel>
 </rss>`
 
-    return new Response(rss, {
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-      },
-    })
-  } catch (error) {
-    console.error('RSS generation failed:', error)
-    return new Response('Failed to generate RSS', { status: 500 })
+    return new Response(rss, { headers: { 'Content-Type': 'application/xml; charset=utf-8' } })
+  } catch {
+    return new Response('RSS unavailable', { status: 500 })
   }
 }
 
 function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
 }
