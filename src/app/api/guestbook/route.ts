@@ -1,14 +1,12 @@
+import { getPrisma } from '@/lib/prisma'
 import { SEED_GUESTBOOK } from '@/lib/seed-data'
-import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    try {
-      const messages = await prisma.guestbookMessage.findMany({ orderBy: { createdAt: 'desc' }, take: 50 })
-      if (messages.length > 0) return Response.json(messages)
-    } catch { /* fall back to seed */ }
+    const prisma = await getPrisma()
+    if (prisma) {
+      try { const msgs = await prisma.guestbookMessage.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }); if (msgs.length > 0) return Response.json(msgs) } catch {}
+    }
     return Response.json(SEED_GUESTBOOK)
-  } catch {
-    return Response.json(SEED_GUESTBOOK)
-  }
+  } catch { return Response.json(SEED_GUESTBOOK) }
 }
