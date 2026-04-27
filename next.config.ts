@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['@prisma/client'],
+  serverExternalPackages: ['@prisma/client', '@libsql/client', '@prisma/adapter-libsql'],
   images: {
     remotePatterns: [
       {
@@ -10,14 +10,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  // 构建时忽略 ESLint 错误
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // 构建时忽略 TypeScript 错误
-  typescript: {
-    ignoreBuildErrors: true,
   },
 };
 
