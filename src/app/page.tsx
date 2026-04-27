@@ -274,7 +274,7 @@ export default function Home() {
                       </span>
                     ))}
                   </div>
-                  <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <a href={project.githubUrl || undefined} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
                     <Github className="w-4 h-4" /> GitHub
                   </a>
                 </motion.div>
