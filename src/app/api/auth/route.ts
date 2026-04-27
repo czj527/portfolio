@@ -1,7 +1,11 @@
 import { getPrisma } from '@/lib/prisma'
-import QRCode from 'qrcode'
 
 const tokens = new Map<string, { expires: number }>()
+
+async function generateQRDataUrl(text: string): Promise<string> {
+  const QRCode = await import('qrcode')
+  return QRCode.toDataURL(text, { width: 220, margin: 2 })
+}
 
 export async function GET(request: Request) {
   try {
@@ -19,7 +23,7 @@ export async function GET(request: Request) {
       const code = Math.random().toString(36).slice(2, 10)
       tokens.set(code, { expires: Date.now() + 5 * 60 * 1000 })
       const url = `${getHost(request)}/api/auth?action=verify&token=${code}`
-      const dataUrl = await QRCode.toDataURL(url, { width: 220, margin: 2 })
+      const dataUrl = await generateQRDataUrl(url)
       return Response.json({ token: code, qrDataUrl: dataUrl })
     }
 
