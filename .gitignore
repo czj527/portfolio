@@ -101,3 +101,4 @@ Desktop.ini
 # Prisma
 prisma/dev.db
 prisma/dev.db-journal
+prisma/prisma/dev.db
