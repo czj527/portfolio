@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx prisma generate && next build",
-  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "DATABASE_URL=\"file:./dev.db\" npx prisma generate && next build",
+  "installCommand": "pnpm install",
   "framework": "nextjs"
 }
