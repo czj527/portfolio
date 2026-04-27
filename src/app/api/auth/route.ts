@@ -1,4 +1,5 @@
 import { getPrisma } from '@/lib/prisma'
+import QRCode from 'qrcode'
 
 const tokens = new Map<string, { expires: number }>()
 
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
     const action = searchParams.get('action')
     const token = searchParams.get('token')
 
-    if (action === 'create') {
+    if (action === 'qrcode') {
       const prisma = await getPrisma()
       const config = prisma ? (await prisma.siteConfig.findUnique({ where: { key: 'admin_password' } }).catch(() => null)) : null
       const password = searchParams.get('password')
@@ -17,7 +18,9 @@ export async function GET(request: Request) {
       }
       const code = Math.random().toString(36).slice(2, 10)
       tokens.set(code, { expires: Date.now() + 5 * 60 * 1000 })
-      return Response.json({ token: code, url: `${getHost(request)}/api/auth?action=verify&token=${code}` })
+      const url = `${getHost(request)}/api/auth?action=verify&token=${code}`
+      const dataUrl = await QRCode.toDataURL(url, { width: 220, margin: 2 })
+      return Response.json({ token: code, qrDataUrl: dataUrl })
     }
 
     if (action === 'verify' && token) {

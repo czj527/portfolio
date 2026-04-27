@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Plus, Edit, Package, FileText, LogOut, PenTool, Shield, QrCode, KeyRound, Github, ArrowLeft, Smartphone } from 'lucide-react'
-import QRCode from 'qrcode'
 
 interface Post {
   id: number; title: string; slug: string; published: boolean; views: number; createdAt: string
@@ -30,7 +29,6 @@ export default function AdminPage() {
   const [qrDataUrl, setQrDataUrl] = useState('')
   const [qrToken, setQrToken] = useState('')
   const [qrVerifying, setQrVerifying] = useState(false)
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null)
 
   // GitHub
   const [githubUser, setGithubUser] = useState('')
@@ -97,12 +95,11 @@ export default function AdminPage() {
   const generateQrCode = async () => {
     setQrVerifying(true); setError('')
     try {
-      const res = await fetch(`/api/auth?action=create&password=admin123`)
+      const res = await fetch(`/api/auth?action=qrcode&password=admin123`)
       const data = await res.json()
       if (data.error) { setError(data.error); setQrVerifying(false); return }
       setQrToken(data.token)
-      const dataUrl = await QRCode.toDataURL(data.url, { width: 220, margin: 2 })
-      setQrDataUrl(dataUrl)
+      setQrDataUrl(data.qrDataUrl)
       setQrVerifying(false)
       pollQrVerification(data.token)
     } catch {

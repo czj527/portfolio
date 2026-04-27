@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { headers } from 'next/headers'
 
 export async function POST(request: Request) {
@@ -14,6 +14,9 @@ export async function POST(request: Request) {
     const forwardedFor = headersList.get('x-forwarded-for')
     const ip = forwardedFor?.split(',')[0]?.trim() || '127.0.0.1'
 
+    const prisma = await getPrisma()
+    if (!prisma) return Response.json({ error: '数据库不可用' }, { status: 503 })
+
     const existing = await prisma.like.findUnique({
       where: { ip_postId: { ip, postId } },
     })
@@ -24,10 +27,7 @@ export async function POST(request: Request) {
       return Response.json({ liked: false, count, message: '已取消点赞' })
     }
 
-    await prisma.like.create({
-      data: { ip, postId },
-    })
-
+    await prisma.like.create({ data: { ip, postId } })
     const count = await prisma.like.count({ where: { postId } })
     return Response.json({ liked: true, count, message: '点赞成功' })
   } catch (error) {
