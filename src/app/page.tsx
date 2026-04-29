@@ -1,10 +1,21 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Github, Linkedin, Mail, Sparkles, Code, PenTool, Briefcase, MessageSquare, ExternalLink, Folder } from 'lucide-react';
-import { SITE_CONFIG } from '@/lib/config';
-import { useState, useEffect } from 'react';
+import { ArrowRight, Github, Mail, Sparkles, Code, PenTool, Briefcase, MessageSquare, Folder } from 'lucide-react';
+import { HeroSection } from '@/components/effects/HeroSection';
+import { BlogCard } from '@/components/effects/BlogCard';
+import { ScheduleView } from '@/components/schedule/ScheduleView';
+import { QnASection } from '@/components/effects/QnASection';
+
+interface HomeProject {
+  id: number;
+  title: string;
+  description: string;
+  techStack: string;
+  githubUrl: string | null;
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -27,160 +38,25 @@ const itemVariants = {
   },
 };
 
-interface HomeProject {
-  id: number
-  title: string
-  description: string
-  techStack: string
-  githubUrl: string | null
-}
-
 export default function Home() {
-  const [HomeProjects, setHomeProjects] = useState<HomeProject[]>([])
+  const [HomeProjects, setHomeProjects] = useState<HomeProject[]>([]);
 
   useEffect(() => {
     fetch('/api/projects')
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data)) setHomeProjects(data)
+        if (Array.isArray(data)) setHomeProjects(data);
       })
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
 
   return (
     <div className="pt-16">
-      {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center px-4">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl mx-auto text-center"
-        >
-          <motion.div variants={itemVariants} className="mb-6">
-            <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Sparkles className="w-4 h-4 mr-2" />
-              欢迎来到我的个人空间
-            </span>
-          </motion.div>
-
-          {/* 头像 */}
-          <motion.div
-            variants={itemVariants}
-            className="mb-8"
-            whileHover={{ scale: 1.05, rotate: 2 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <div className="relative inline-block">
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full blur-lg opacity-50"
-                animate={{
-                  scale: [1, 1.05, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-              <img
-                src="/avatar.jpg"
-                alt="个人头像"
-                className="relative w-40 h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-background shadow-2xl"
-              />
-            </div>
-          </motion.div>
-
-          <motion.h1
-            variants={itemVariants}
-            className="text-5xl md:text-7xl font-bold mb-6"
-            style={{
-              background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              color: 'var(--primary)',
-            }}
-          >
-            你好  我是长岛冰茶 
-
-          </motion.h1>
-          <motion.h1
-            variants={itemVariants}
-            className="text-5xl md:text-7xl font-bold mb-6"
-            style={{
-              background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              color: 'var(--primary)',
-            }}
-          >
-            欢迎访问我的个人网站
-          </motion.h1>
-
-          {/* <motion.p
-            variants={itemVariants}
-            className="text-xl md:text-2xl text-muted-foreground mb-8"
-          >
-            热爱技术，专注创造优雅的用户体验
-          </motion.p> */}
-
-          <motion.p
-            variants={itemVariants}
-            className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto"
-          >
-            我是一名全栈开发者，热衷于构建现代化的 Web 应用。
-            在这里，你可以了解我的项目、阅读我的技术博客，以及更多关于我的信息。
-          </motion.p>
-
-          <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4">
-            <Link href="/projects">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
-              >
-                查看项目
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </motion.button>
-            </Link>
-            <Link href="/about">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-accent transition-colors"
-              >
-                了解更多
-              </motion.button>
-            </Link>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="mt-16 flex justify-center gap-6">
-            <motion.a
-              href="https://github.com/czj527"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.2, rotate: 5 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-3 rounded-full bg-accent hover:bg-primary/10 transition-colors"
-            >
-              <Github className="w-6 h-6" />
-            </motion.a>
-            <motion.a
-              href="mailto:2719398856@qq.com"
-              whileHover={{ scale: 1.2, rotate: 5 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-3 rounded-full bg-accent hover:bg-primary/10 transition-colors"
-            >
-              <Mail className="w-6 h-6" />
-            </motion.a>
-          </motion.div>
-        </motion.div>
-      </section>
+      {/* Hero Section with new effects */}
+      <HeroSection />
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-accent/30">
+      <section className="py-20 px-4 bg-gradient-to-b from-background via-accent/10 to-background">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -216,13 +92,13 @@ export default function Home() {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
-                className="p-6 bg-background rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover"
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="p-6 bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-xl border border-border/50 transition-all duration-300"
               >
                 <motion.div
-                  whileHover={{ rotate: 360 }}
+                  whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className="w-16 h-16 mb-4 rounded-full bg-primary/10 flex items-center justify-center text-primary"
+                  className="w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-primary"
                 >
                   {feature.icon}
                 </motion.div>
@@ -244,7 +120,10 @@ export default function Home() {
           className="max-w-6xl mx-auto"
         >
           <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold">精选项目</h2>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-2">精选项目</h2>
+              <p className="text-muted-foreground">这些项目展示了我的技术能力和实践经验</p>
+            </div>
             <Link href="/projects" className="text-sm text-primary hover:underline flex items-center gap-1">
               查看全部 <ArrowRight className="w-4 h-4" />
             </Link>
@@ -259,17 +138,17 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -4 }}
-                  className="group p-6 rounded-2xl border border-border bg-card hover:shadow-xl hover:border-primary/30 transition-all duration-500"
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="group p-6 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-xl hover:border-primary/30 transition-all duration-500"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Folder className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
                   <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{project.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.techStack.split(',').slice(0, 4).map((tech) => (
-                      <span key={tech} className="px-2 py-1 text-xs rounded-md bg-muted text-muted-foreground font-mono">
+                      <span key={tech} className="px-2 py-1 text-xs rounded-md bg-accent/50 text-muted-foreground font-mono backdrop-blur-sm">
                         {tech.trim()}
                       </span>
                     ))}
@@ -289,8 +168,32 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* Schedule Section */}
+      <section className="py-20 px-4 bg-gradient-to-b from-background via-accent/10 to-background">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-6xl mx-auto"
+        >
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              <Sparkles className="w-4 h-4" />
+              日程预览
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">我的日程</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              记录学习和生活的点滴，让每一天都充实而有意义
+            </p>
+          </div>
+          
+          <ScheduleView />
+        </motion.div>
+      </section>
+
       {/* Navigation Section */}
-      <section className="py-20 px-4 bg-accent/30">
+      <section className="py-20 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -312,22 +215,22 @@ export default function Home() {
             {/* 博客按钮 */}
             <Link href="/blog">
               <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-8 bg-background rounded-xl shadow-sm hover:shadow-md transition-all card-hover cursor-pointer"
+                className="p-8 bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <motion.div
-                  whileHover={{ rotate: 360 }}
+                  whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className="w-16 h-16 mb-4 rounded-full bg-primary/10 flex items-center justify-center text-primary"
+                  className="w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center text-blue-500"
                 >
                   <PenTool className="w-8 h-8" />
                 </motion.div>
                 <h3 className="text-xl font-bold mb-2">浏览我的所有博客</h3>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm mb-4">
                   阅读我的技术文章和思考分享
                 </p>
-                <div className="mt-4 flex items-center text-primary font-medium">
+                <div className="flex items-center text-blue-500 font-medium">
                   查看博客
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </div>
@@ -337,22 +240,22 @@ export default function Home() {
             {/* 留言按钮 */}
             <Link href="/guestbook">
               <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-8 bg-background rounded-xl shadow-sm hover:shadow-md transition-all card-hover cursor-pointer"
+                className="p-8 bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <motion.div
-                  whileHover={{ rotate: 360 }}
+                  whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className="w-16 h-16 mb-4 rounded-full bg-primary/10 flex items-center justify-center text-primary"
+                  className="w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-purple-500"
                 >
                   <MessageSquare className="w-8 h-8" />
                 </motion.div>
                 <h3 className="text-xl font-bold mb-2">给我留言</h3>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm mb-4">
                   在留言板留下你的想法和建议
                 </p>
-                <div className="mt-4 flex items-center text-primary font-medium">
+                <div className="flex items-center text-purple-500 font-medium">
                   前往留言板
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </div>
@@ -362,22 +265,22 @@ export default function Home() {
             {/* 联系按钮 */}
             <Link href="/about">
               <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-8 bg-background rounded-xl shadow-sm hover:shadow-md transition-all card-hover cursor-pointer"
+                className="p-8 bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <motion.div
-                  whileHover={{ rotate: 360 }}
+                  whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className="w-16 h-16 mb-4 rounded-full bg-primary/10 flex items-center justify-center text-primary"
+                  className="w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br from-orange-500/20 to-amber-500/20 flex items-center justify-center text-orange-500"
                 >
                   <Mail className="w-8 h-8" />
                 </motion.div>
                 <h3 className="text-xl font-bold mb-2">联系我</h3>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm mb-4">
                   通过邮件或社交媒体与我联系
                 </p>
-                <div className="mt-4 flex items-center text-primary font-medium">
+                <div className="flex items-center text-orange-500 font-medium">
                   查看联系方式
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </div>
@@ -386,6 +289,9 @@ export default function Home() {
           </div>
         </motion.div>
       </section>
+
+      {/* Q&A Section */}
+      <QnASection />
     </div>
   );
 }
