@@ -143,7 +143,7 @@ function ScheduleCard({ schedule, slotIndex, slotSpan, isPast }: ScheduleCardPro
       
       <div className="relative z-10 h-full flex flex-col">
         <div className="flex items-start justify-between">
-          <span className="text-lg">{typeIcons[schedule.type]}</span>
+          <span className="text-lg" suppressHydrationWarning>{typeIcons[schedule.type]}</span>
           {!isPast && (
             <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse" />
           )}
@@ -236,17 +236,17 @@ function DayColumn({ date, schedules, isToday, isPast }: DayColumnProps) {
 
 export function ScheduleView() {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => getWeekStart(new Date()));
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<string>('');
   
   const weekDates = useMemo(() => getWeekDates(currentWeekStart), [currentWeekStart]);
   const todayString = useMemo(() => formatDate(new Date()), []);
   
   // Generate schedules with dates
   const schedules = useMemo(() => {
-    return MOCK_SCHEDULES.map(schedule => {
-      // Assign a random weekday
-      const randomDayIndex = Math.floor(Math.random() * 5); // Weekdays only
-      const date = new Date(weekDates[randomDayIndex]);
+    return MOCK_SCHEDULES.map((schedule, index) => {
+      // Deterministic day assignment to avoid hydration mismatch
+      const dayIndex = index % 5; // Weekdays only, cycle through
+      const date = new Date(weekDates[dayIndex]);
       return {
         ...schedule,
         date: formatDate(date),
@@ -254,8 +254,9 @@ export function ScheduleView() {
     });
   }, [weekDates]);
   
-  // Update current time every minute
+  // Update current time every minute (client only to avoid hydration mismatch)
   useEffect(() => {
+    setCurrentTime(new Date());
     const interval = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(interval);
   }, []);

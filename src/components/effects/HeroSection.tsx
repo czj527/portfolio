@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Github, Mail, ChevronDown } from 'lucide-react';
+import { useAppStore } from '@/store';
 
 // ==================== Typewriter Effect ====================
 const phrases = [
@@ -52,6 +53,8 @@ function TypewriterText() {
 
 // ==================== 3D Tilt Card ====================
 const TiltCard = memo(function TiltCard() {
+  const currentTheme = useAppStore((state) => state.currentTheme);
+  const isDark = currentTheme === 'dark' || currentTheme === 'winter';
   const cardRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -88,6 +91,7 @@ const TiltCard = memo(function TiltCard() {
         whileTap={{ scale: 0.95 }}
         style={{ transform: 'translateZ(50px)' }}
       >
+        {isDark && (
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full blur-xl opacity-50"
           animate={{
@@ -100,6 +104,7 @@ const TiltCard = memo(function TiltCard() {
             ease: 'easeInOut',
           }}
         />
+        )}
         <img
           src="/avatar.jpg"
           alt="个人头像"
