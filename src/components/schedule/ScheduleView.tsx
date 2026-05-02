@@ -236,7 +236,7 @@ function DayColumn({ date, schedules, isToday, isPast }: DayColumnProps) {
 
 export function ScheduleView() {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => getWeekStart(new Date()));
-  const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
   
   const weekDates = useMemo(() => getWeekDates(currentWeekStart), [currentWeekStart]);
   const todayString = useMemo(() => formatDate(new Date()), []);

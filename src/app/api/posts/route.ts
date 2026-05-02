@@ -1,42 +1,80 @@
-import { getPrisma } from '@/lib/prisma'
-import { NextRequest } from 'next/server'
-import { SEED_POSTS } from '@/lib/seed-data'
+import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
+import { generateTitle, generateSlug } from '@/lib/ai/client';
 
+// 获取所有已发布文章
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = request.nextUrl
-    const limit = Number(searchParams.get('limit')) || 10; const page = Number(searchParams.get('page')) || 1
-    const published = searchParams.get('published'); const category = searchParams.get('category')
-    const tag = searchParams.get('tag'); const search = searchParams.get('search')
+    const { data, error } = await supabaseAdmin
+      .from('posts')
+      .select('*')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false });
 
-    let posts: any[] = []; let total = 0
-    const prisma = await getPrisma()
-    if (prisma) {
+    if (error) throw error;
+
+    return NextResponse.json({ posts: data });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// 创建新文章
+export async function POST(request: NextRequest) {
+  try {
+    const { title, markdown, content, excerpt, tags, draft_id } = await request.json();
+
+    if (!markdown && !content) {
+      return NextResponse.json({ error: 'markdown or content is required' }, { status: 400 });
+    }
+
+    // 生成标题和slug
+    let finalTitle = title;
+    if (!finalTitle && markdown) {
       try {
-        const where: any = {}
-        if (published !== 'false') where.published = true
-        if (category) where.category = { slug: category }
-        if (tag) where.tags = { some: { tag: { slug: tag } } }
-        if (search) where.OR = [{ title: { contains: search } }, { content: { contains: search } }]
-        const [dbPosts, dbTotal] = await Promise.all([
-          prisma.post.findMany({ where, include: { category: { select: { name: true, slug: true } }, tags: { include: { tag: { select: { id: true, name: true, slug: true } } }, take: 5 }, _count: { select: { comments: true, likes: true } } }, orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }], skip: (page - 1) * limit, take: limit }),
-          prisma.post.count({ where }),
-        ])
-        if (dbTotal > 0) { posts = dbPosts.map((p: any) => ({ ...p, tags: p.tags.map((t: any) => t.tag) })); total = dbTotal }
-      } catch {}
+        finalTitle = await generateTitle(markdown);
+      } catch (e) {
+        finalTitle = 'Untitled';
+      }
     }
-    if (total === 0) {
-      let filtered = SEED_POSTS.filter(p => {
-        if (published !== 'false' && !p.published) return false
-        if (category && p.category?.slug !== category) return false
-        if (tag && !p.tags.some((t: any) => t.slug === tag)) return false
-        if (search && !p.title.includes(search) && !p.content.includes(search)) return false
-        return true
+
+    const slug = generateSlug(finalTitle || 'untitled');
+
+    // 检查slug是否已存在
+    const { data: existing } = await supabaseAdmin
+      .from('posts')
+      .select('slug')
+      .eq('slug', slug)
+      .single();
+
+    const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
+
+    const { data, error } = await supabaseAdmin
+      .from('posts')
+      .insert({
+        slug: finalSlug,
+        title: finalTitle,
+        markdown: markdown || null,
+        content: content || null,
+        excerpt: excerpt || markdown?.slice(0, 200) || null,
+        tags: tags || [],
+        is_published: true
       })
-      total = filtered.length; posts = filtered.slice((page - 1) * limit, page * limit)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // 如果有draft_id，标记草稿已发布
+    if (draft_id) {
+      await supabaseAdmin
+        .from('drafts')
+        .update({ published_at: new Date().toISOString() })
+        .eq('id', draft_id);
     }
-    return Response.json({ posts, total, page, totalPages: Math.max(1, Math.ceil(total / limit)) })
-  } catch {
-    return Response.json({ posts: [], total: 0, page: 1, totalPages: 1 })
+
+    return NextResponse.json({ post: data });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

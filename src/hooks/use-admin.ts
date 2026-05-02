@@ -1,36 +1,45 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react';
 
 export function useAdmin() {
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('blog_admin')
-    if (stored === 'true') {
-      setIsAdmin(true)
-    }
-  }, [])
+    // Check cookie on mount
+    const cookies = document.cookie.split(';');
+    const adminCookie = cookies.find(c => c.trim().startsWith('admin_token='));
+    setIsAdmin(!!adminCookie);
+    setIsLoading(false);
+  }, []);
 
   const login = useCallback(async (password: string): Promise<boolean> => {
     try {
-      const res = await fetch('/api/config')
-      const config = await res.json()
-      if (password === config.admin_password) {
-        setIsAdmin(true)
-        localStorage.setItem('blog_admin', 'true')
-        return true
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      if (res.ok) {
+        setIsAdmin(true);
+        return true;
       }
-      return false
+      return false;
     } catch {
-      return false
+      return false;
     }
-  }, [])
+  }, []);
 
-  const logout = useCallback(() => {
-    setIsAdmin(false)
-    localStorage.removeItem('blog_admin')
-  }, [])
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setIsAdmin(false);
+    } catch {
+      // ignore
+    }
+  }, []);
 
-  return { isAdmin, login, logout }
+  return { isAdmin, isLoading, login, logout };
 }

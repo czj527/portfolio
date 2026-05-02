@@ -2,67 +2,61 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 interface RouteParams {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ id: string }>;
 }
 
-// 获取单个文章
+// 获取单个草稿
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { slug } = await params;
+    const { id } = await params;
 
     const { data, error } = await supabaseAdmin
-      .from('posts')
+      .from('drafts')
       .select('*')
-      .eq('slug', slug)
+      .eq('id', id)
       .single();
 
     if (error) throw error;
 
-    // 增加阅读量
-    await supabaseAdmin
-      .from('posts')
-      .update({ views: (data.views || 0) + 1 })
-      .eq('slug', slug);
-
-    return NextResponse.json({ post: data });
+    return NextResponse.json({ draft: data });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-// 更新文章
+// 更新草稿
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const { slug } = await params;
+    const { id } = await params;
     const updates = await request.json();
 
     const { data, error } = await supabaseAdmin
-      .from('posts')
+      .from('drafts')
       .update({
         ...updates,
         updated_at: new Date().toISOString()
       })
-      .eq('slug', slug)
+      .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
 
-    return NextResponse.json({ post: data });
+    return NextResponse.json({ draft: data });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-// 删除文章（取消发布）
+// 删除草稿
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { slug } = await params;
+    const { id } = await params;
 
     const { error } = await supabaseAdmin
-      .from('posts')
-      .update({ is_published: false })
-      .eq('slug', slug);
+      .from('drafts')
+      .update({ is_deleted: true })
+      .eq('id', id);
 
     if (error) throw error;
 
