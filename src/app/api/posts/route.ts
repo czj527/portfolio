@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { generateTitle, generateSlug } from '@/lib/ai/client';
 
 // 获取所有已发布文章
 export async function GET(request: NextRequest) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const { data, error } = await supabaseAdmin
       .from('posts')
       .select('*')
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { title, markdown, content, excerpt, tags, draft_id } = await request.json();
+    const supabaseAdmin = getSupabaseAdmin();
 
     if (!markdown && !content) {
       return NextResponse.json({ error: 'markdown or content is required' }, { status: 400 });
