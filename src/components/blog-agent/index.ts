@@ -3,3 +3,5 @@ export { ChatPanel } from './ChatPanel';
 export { PreviewPanel } from './PreviewPanel';
 export { DraftList } from './DraftList';
 export { AdminLogin } from './AdminLogin';
+export { default as ModeSwitcher } from './ModeSwitcher';
+export { default as AssistPanel } from './AssistPanel';
