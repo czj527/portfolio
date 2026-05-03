@@ -1,8 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Github, Mail, Laptop, BookOpen, Calendar, ListTodo } from 'lucide-react';
+import { Github, Mail, Laptop, BookOpen, Calendar, ListTodo, ArrowRight } from 'lucide-react';
 import { PortalHeroSection } from '@/components/effects/PortalHeroSection';
+import { ScheduleView } from '@/components/schedule/ScheduleView';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -10,9 +12,35 @@ export default function Home() {
       {/* Hero 区域 - 个人介绍 */}
       <PortalHeroSection />
 
-      {/* 中间主体 - 博客/个人内容区（占位） */}
+      {/* 中间主体 - 博客/个人内容区 */}
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
+          {/* 日程预览卡片 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-12"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold">
+                本周日程
+              </h2>
+              <Link 
+                href="/schedule"
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                查看完整日程
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-4 border border-border/50">
+              <ScheduleView ownerId="czj527" showLegend={false} />
+            </div>
+          </motion.div>
+
+          {/* 最新动态 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

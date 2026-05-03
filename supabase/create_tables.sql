@@ -1,61 +1,74 @@
--- ============================================
--- 博客智能体数据库表创建脚本
--- 在 Supabase Dashboard -> SQL Editor 中执行
--- ============================================
+-- =====================================================
+-- 日程表 (schedules) - 创建脚本
+-- 用于 Supabase PostgreSQL 数据库
+-- =====================================================
 
--- 1. 创建草稿表 (drafts)
-CREATE TABLE IF NOT EXISTS drafts (
+-- 创建 schedules 表
+CREATE TABLE IF NOT EXISTS schedules (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   owner_id TEXT DEFAULT 'czj527',
-  title TEXT,
-  content TEXT DEFAULT '',
-  outline JSONB DEFAULT '[]',
-  current_phase TEXT DEFAULT 'capture',
-  chat_history JSONB DEFAULT '[]',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  published_at TIMESTAMPTZ,
-  is_deleted BOOLEAN DEFAULT FALSE
-);
-
--- 2. 创建已发布文章表 (posts)
-CREATE TABLE IF NOT EXISTS posts (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  slug TEXT UNIQUE NOT NULL,
   title TEXT NOT NULL,
-  content TEXT,
-  markdown TEXT,
-  excerpt TEXT,
-  tags TEXT[] DEFAULT '{}',
-  published_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  views INT DEFAULT 0,
-  is_published BOOLEAN DEFAULT TRUE
-);
-
--- 3. 创建想法记忆库表 (ideas)
-CREATE TABLE IF NOT EXISTS ideas (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  content TEXT NOT NULL,
-  source TEXT DEFAULT 'chat',
-  tags TEXT[] DEFAULT '{}',
+  description TEXT,
+  date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  duration INT DEFAULT 90,
+  color TEXT DEFAULT '#3b82f6',
+  type TEXT DEFAULT 'personal' CHECK (type IN ('class', 'work', 'personal', 'meeting')),
+  
+  -- 提醒相关字段
+  remind_enabled BOOLEAN DEFAULT true,
+  remind_minutes INT DEFAULT 10,
+  
+  -- 时间戳
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  used_in_posts UUID[] DEFAULT '{}'
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 禁用 RLS（因为使用 API Key 认证）
-ALTER TABLE drafts DISABLE ROW LEVEL SECURITY;
-ALTER TABLE posts DISABLE ROW LEVEL SECURITY;
-ALTER TABLE ideas DISABLE ROW LEVEL SECURITY;
+-- =====================================================
+-- 索引
+-- =====================================================
+CREATE INDEX IF NOT EXISTS idx_schedules_owner_id ON schedules(owner_id);
+CREATE INDEX IF NOT EXISTS idx_schedules_date ON schedules(date);
+CREATE INDEX IF NOT EXISTS idx_schedules_owner_date ON schedules(owner_id, date);
 
--- 创建索引
-CREATE INDEX IF NOT EXISTS idx_drafts_owner ON drafts(owner_id);
-CREATE INDEX IF NOT EXISTS idx_drafts_updated ON drafts(updated_at DESC);
-CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
-CREATE INDEX IF NOT EXISTS idx_posts_published ON posts(published_at DESC);
-CREATE INDEX IF NOT EXISTS idx_ideas_created ON ideas(created_at DESC);
+-- =====================================================
+-- Row Level Security (RLS) 配置
+-- =====================================================
 
--- 验证表创建成功
-SELECT 'Drafts table created' as status WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'drafts');
-SELECT 'Posts table created' as status WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'posts');
-SELECT 'Ideas table created' as status WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ideas');
+-- 启用 RLS
+ALTER TABLE schedules ENABLE ROW LEVEL SECURITY;
+
+-- 允许任何人读取数据（后续可以改为仅限本人）
+CREATE POLICY "Allow public read" ON schedules
+  FOR SELECT USING (true);
+
+-- 允许服务端使用 service role key 进行所有操作
+CREATE POLICY "Allow service role all" ON schedules
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- =====================================================
+-- 自动更新 updated_at 触发器
+-- =====================================================
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_schedules_updated_at
+  BEFORE UPDATE ON schedules
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- =====================================================
+-- 初始化示例数据
+-- =====================================================
+INSERT INTO schedules (title, description, date, start_time, duration, color, type, remind_enabled, remind_minutes)
+VALUES 
+  ('高等数学', '线性代数复习', CURRENT_DATE, '08:00', 90, '#3b82f6', 'class', true, 10),
+  ('团队周会', '项目进度同步', CURRENT_DATE, '09:30', 60, '#10b981', 'meeting', true, 15),
+  ('健身训练', '有氧 + 力量', CURRENT_DATE, '18:30', 90, '#f59e0b', 'personal', true, 30),
+  ('算法刷题', 'LeetCode 每日一题', CURRENT_DATE, '20:00', 90, '#ef4444', 'work', false, 0)
+ON CONFLICT DO NOTHING;
