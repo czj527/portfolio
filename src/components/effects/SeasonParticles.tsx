@@ -49,7 +49,7 @@ function generateParticles(season: Season): ParticleStyle[] {
       fontSize: 14 + r2 * 14,
       opacity: 0.4 + r3 * 0.5,
       animationDuration: `${10 + r4 * 12}s`,
-      animationDelay: `${-r1 * 15}s`, // negative delay = start mid-animation
+      animationDelay: `${-r1 * 15}s`,
       emoji: emojis[Math.floor(r2 * emojis.length)],
     });
   }
@@ -59,30 +59,19 @@ function generateParticles(season: Season): ParticleStyle[] {
 
 export function SeasonParticles() {
   const [mounted, setMounted] = useState(false);
-  const currentTheme = useAppStore((state) => state.currentTheme);
+  const currentSeason = useAppStore((state) => state.currentSeason);
   const settings = useAppStore((state) => state.settings);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Resolve season from theme or current month
-  const season = useMemo<Season>(() => {
-    if (currentTheme === 'spring' || currentTheme === 'summer' ||
-        currentTheme === 'autumn' || currentTheme === 'winter') {
-      return currentTheme;
-    }
-    const month = new Date().getMonth() + 1;
-    if (month >= 3 && month <= 5) return 'spring';
-    if (month >= 6 && month <= 8) return 'summer';
-    if (month >= 9 && month <= 11) return 'autumn';
-    return 'winter';
-  }, [currentTheme]);
+  // Use currentSeason from store (set by ThemeProvider)
+  const season = currentSeason;
 
-  // Generate particles once per season (deterministic, no re-generation)
   const particles = useMemo(() => generateParticles(season), [season]);
 
-  // Don't render on SSR, or if particles disabled, or user chose light mode explicitly
+  // Don't render on SSR, or if particles disabled, or user explicitly chose light mode
   if (!mounted || !settings.particleEffects || settings.themeMode === 'light') {
     return null;
   }

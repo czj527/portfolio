@@ -204,7 +204,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+    <section className="min-h-screen flex items-center justify-center px-4 pt-16 relative overflow-hidden">
       <StarBackground />
       
       <motion.div
