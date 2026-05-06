@@ -173,7 +173,7 @@ export default function Home() {
             </motion.a>
           </div>
           <p className="text-xs text-muted-foreground mt-3 sm:mt-4 opacity-60">
-            Made with ❤️ by 陈子杰
+            Made with ❤️ by 长岛冰茶
           </p>
         </motion.div>
       </section>

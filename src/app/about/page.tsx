@@ -68,7 +68,7 @@ export default function About() {
           <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-sm">
             <h2 className="text-2xl font-bold mb-4">个人简介</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              你好！我是陈子杰，网名「长岛冰茶」，来自武汉工程大学计算机专业的大三学生。
+              你好！我是长岛冰茶，来自武汉工程大学计算机专业的大三学生。
               目前是一名AI辅助前端开发实习生，正在探索技术与创意的无限可能。
             </p>
             <p className="text-muted-foreground leading-relaxed">

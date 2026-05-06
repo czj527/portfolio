@@ -169,7 +169,7 @@ export function PortalHeroSection() {
               repeatDelay: 3,
             }}
           >
-            陈子杰
+            长岛冰茶
           </motion.span>
         </motion.h1>
 
