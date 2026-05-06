@@ -38,7 +38,7 @@ export default function SchedulePage() {
           transition={{ delay: 0.1 }}
           className="bg-card/50 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-border/50"
         >
-          <ScheduleView ownerId="czj527" showLegend={true} />
+          <ScheduleView />
         </motion.div>
         
         {/* Tips */}
