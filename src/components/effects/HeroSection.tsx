@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Github, Mail, ChevronDown } from 'lucide-react';
+import { ArrowRight, Github, Mail, ChevronDown, MapPin, Calendar } from 'lucide-react';
 import { useAppStore } from '@/store';
 
 // ==================== Typewriter Effect ====================
@@ -51,7 +51,7 @@ function TypewriterText() {
   );
 }
 
-// ==================== 3D Tilt Avatar (Left Top Corner) ====================
+// ==================== 3D Tilt Avatar ====================
 const TiltCard = memo(function TiltCard() {
   const currentTheme = useAppStore((state) => state.currentTheme);
   const isDark = currentTheme === 'dark';
@@ -108,7 +108,7 @@ const TiltCard = memo(function TiltCard() {
         <img
           src="/avatar.jpg"
           alt="个人头像"
-          className="relative w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-background shadow-2xl"
+          className="relative w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-background shadow-2xl"
           style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
         />
       </motion.div>
@@ -128,10 +128,62 @@ interface ScheduleData {
   type: 'class' | 'work' | 'personal';
 }
 
+// 随机心情文案池
+const moodTexts: Record<string, string[]> = {
+  working: [
+    '搬砖中，但代码写得还算开心 💻',
+    '打工人的日常，键盘敲到飞起 🔥',
+    '在工位上认真摸鱼…啊不，认真工作',
+    '需求又改了，但我已经习惯了 🙂',
+  ],
+  eating: [
+    '干饭时间到！今天的饭还行 🍚',
+    '吃饭不积极，思想有问题 🥢',
+    '短暂逃离工位，觅食中',
+  ],
+  exercising: [
+    '健身房报到，今天也要变强 💪',
+    '举铁使我快乐（其实很累）',
+    '和哑铃约会中 🏋️',
+  ],
+  studying: [
+    'Python 学习中，万物皆可 import 🐍',
+    '学到头秃，但很充实',
+    '深夜修仙，代码为伴 🧙',
+  ],
+  free: [
+    '摸鱼时间，快乐加倍 🐟',
+    '自由人，在线冲浪',
+    '没有日程的快乐你不懂 😎',
+  ],
+  sleeping: [
+    '已关机，明天再战 😴',
+    '梦里在写代码…',
+    '充电中，请勿打扰 🔋',
+  ],
+  morning: [
+    '早起的人有代码写 🌅',
+    '新的一天，bug 退散',
+    '早安打工人 ☀️',
+  ],
+};
+
+function getRandomMood(key: string): string {
+  const pool = moodTexts[key] || moodTexts.free;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 function LiveStatus() {
-  const [status, setStatus] = useState<{ text: string; emoji: string; subtext?: string } | null>(null);
+  const [status, setStatus] = useState<{
+    main: string;
+    emoji: string;
+    mood: string;
+    subtext?: string;
+  } | null>(null);
 
   useEffect(() => {
+    let moodKey = 'free';
+
     async function fetchStatus() {
       try {
         const res = await fetch('/api/schedules?owner_id=czj527');
@@ -146,7 +198,6 @@ function LiveStatus() {
           .filter(s => s.date === todayStr)
           .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-        // Check if currently in a schedule
         for (const s of todaySchedules) {
           const [h, m] = s.startTime.split(':').map(Number);
           const startMin = h * 60 + m;
@@ -154,18 +205,36 @@ function LiveStatus() {
           if (currentMinutes >= startMin && currentMinutes < endMin) {
             const emojiMap: Record<string, string> = { class: '📚', work: '💼', personal: '🎯' };
             const endTime = `${String(Math.floor(endMin / 60) % 24).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`;
-            setStatus({ text: s.title, emoji: emojiMap[s.type] || '✨', subtext: `${s.startTime} - ${endTime}` });
+            // Determine mood key from schedule title/type
+            if (s.title.includes('实习') || s.type === 'work') moodKey = 'working';
+            else if (s.title.includes('饭') || s.title.includes('晚餐')) moodKey = 'eating';
+            else if (s.title.includes('健身')) moodKey = 'exercising';
+            else if (s.title.includes('学习') || s.title.includes('Python')) moodKey = 'studying';
+            else moodKey = 'working';
+
+            setStatus({
+              main: s.title,
+              emoji: emojiMap[s.type] || '✨',
+              mood: getRandomMood(moodKey),
+              subtext: `${s.startTime} - ${endTime}`,
+            });
             return;
           }
         }
 
-        // Check if next schedule is within 30 min
+        // Next schedule within 30 min
         for (const s of todaySchedules) {
           const [h, m] = s.startTime.split(':').map(Number);
           const startMin = h * 60 + m;
           if (startMin > currentMinutes && startMin - currentMinutes <= 30) {
             const emojiMap: Record<string, string> = { class: '📚', work: '💼', personal: '🎯' };
-            setStatus({ text: `即将：${s.title}`, emoji: emojiMap[s.type] || '⏰', subtext: `${s.startTime} 开始` });
+            const minsLeft = startMin - currentMinutes;
+            setStatus({
+              main: `即将：${s.title}`,
+              emoji: emojiMap[s.type] || '⏰',
+              mood: `${minsLeft}分钟后开始，准备一下`,
+              subtext: `${s.startTime} 开始`,
+            });
             return;
           }
         }
@@ -173,14 +242,17 @@ function LiveStatus() {
         // Default
         const hour = now.getHours();
         if (hour >= 23 || hour < 6) {
-          setStatus({ text: '休息中', emoji: '😴' });
+          moodKey = 'sleeping';
+          setStatus({ main: '休息中', emoji: '😴', mood: getRandomMood(moodKey) });
         } else if (hour < 9) {
-          setStatus({ text: '早安', emoji: '🌅' });
+          moodKey = 'morning';
+          setStatus({ main: '早安', emoji: '🌅', mood: getRandomMood(moodKey) });
         } else {
-          setStatus({ text: '自由时间', emoji: '🎉' });
+          moodKey = 'free';
+          setStatus({ main: '自由时间', emoji: '🎉', mood: getRandomMood(moodKey) });
         }
       } catch {
-        setStatus({ text: '自由时间', emoji: '🎉' });
+        setStatus({ main: '自由时间', emoji: '🎉', mood: getRandomMood('free') });
       }
     }
     fetchStatus();
@@ -194,13 +266,14 @@ function LiveStatus() {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg"
+      className="inline-flex items-start gap-3 px-5 py-3.5 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg max-w-sm"
     >
-      <span className="text-3xl">{status.emoji}</span>
-      <div className="text-left">
-        <div className="text-sm font-medium">{status.text}</div>
+      <span className="text-3xl mt-0.5">{status.emoji}</span>
+      <div className="text-left min-w-0">
+        <div className="text-sm font-medium">{status.main}</div>
+        <div className="text-xs text-muted-foreground/80 mt-0.5">{status.mood}</div>
         {status.subtext && (
-          <div className="text-xs text-muted-foreground">{status.subtext}</div>
+          <div className="text-[10px] text-muted-foreground/60 mt-1 font-mono">{status.subtext}</div>
         )}
       </div>
     </motion.div>
@@ -255,17 +328,37 @@ function FloatingArrow() {
   return (
     <motion.div
       className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer"
-      animate={{
-        y: [0, 10, 0],
-      }}
-      transition={{
-        duration: 2,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
+      animate={{ y: [0, 10, 0] }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
     >
       <ChevronDown className="w-8 h-8 text-muted-foreground hover:text-primary transition-colors" />
+    </motion.div>
+  );
+}
+
+// ==================== Profile Card (Avatar + Info) ====================
+function ProfileCard() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+      className="flex items-center gap-5 px-6 py-4 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 shadow-md max-w-lg"
+    >
+      <TiltCard />
+      <div className="flex-1 min-w-0">
+        <h2 className="text-xl font-bold gradient-text inline-block">长岛冰茶</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">全栈开发者 · AI 辅助开发</p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground/70">
+          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />武汉</span>
+          <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />大三在读</span>
+          <span className="flex items-center gap-1"><Github className="w-3 h-3" />czj527</span>
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <LiveStatus />
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -294,140 +387,133 @@ export function HeroSection() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-4 pt-16 relative overflow-hidden">
+    <section className="min-h-screen flex items-center justify-center px-4 pt-20 pb-8 relative overflow-hidden">
       <StarBackground />
-      
-      {/* 头像 - 左上角 */}
-      <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="absolute top-20 left-8 md:left-16 z-20"
-      >
-        <TiltCard />
-      </motion.div>
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-4xl mx-auto text-center relative z-10"
+        className="max-w-4xl mx-auto relative z-10"
       >
-        <motion.div variants={itemVariants} className="mb-6">
-          <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium backdrop-blur-sm border border-primary/20">
+        {/* 顶部个人资料卡 - 独占一行 */}
+        <div className="flex justify-center mb-10">
+          <ProfileCard />
+        </div>
+
+        {/* 中间主体内容 */}
+        <div className="text-center">
+          <motion.div variants={itemVariants} className="mb-6">
+            <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium backdrop-blur-sm border border-primary/20">
+              <motion.span
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                className="mr-2 inline-block"
+              >
+                ✨
+              </motion.span>
+              欢迎来到我的个人空间
+            </span>
+          </motion.div>
+
+          <motion.h1
+            variants={itemVariants}
+            className="text-5xl md:text-7xl font-bold mb-4"
+          >
             <motion.span
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="mr-2 inline-block"
+              className="inline-block gradient-text"
+              animate={{
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+              style={{
+                background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 25%, var(--primary) 50%, oklch(0.6 0.2 280) 75%, var(--primary) 100%)',
+                backgroundSize: '200% 200%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
             >
-              ✨
+              你好，我是长岛冰茶
             </motion.span>
-            欢迎来到我的个人空间
-          </span>
-        </motion.div>
+          </motion.h1>
 
-        {/* 实时状态 - 原头像位置 */}
-        <motion.div variants={itemVariants} className="mb-8 flex justify-center">
-          <LiveStatus />
-        </motion.div>
-
-        <motion.h1
-          variants={itemVariants}
-          className="text-5xl md:text-7xl font-bold mb-4"
-        >
-          <motion.span
-            className="inline-block gradient-text"
-            animate={{
-              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-            style={{
-              background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 25%, var(--primary) 50%, oklch(0.6 0.2 280) 75%, var(--primary) 100%)',
-              backgroundSize: '200% 200%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
+          <motion.h2
+            variants={itemVariants}
+            className="text-4xl md:text-6xl font-bold mb-8"
           >
-            你好，我是长岛冰茶
-          </motion.span>
-        </motion.h1>
-
-        <motion.h2
-          variants={itemVariants}
-          className="text-4xl md:text-6xl font-bold mb-8"
-        >
-          <motion.span
-            className="inline-block gradient-text"
-            animate={{
-              backgroundPosition: ['100% 50%', '0% 50%', '100% 50%'],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-            style={{
-              background: 'linear-gradient(135deg, oklch(0.6 0.2 200) 0%, var(--primary) 25%, oklch(0.6 0.2 280) 50%, var(--primary) 75%, oklch(0.6 0.2 200) 100%)',
-              backgroundSize: '200% 200%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            欢迎访问我的个人网站
-          </motion.span>
-        </motion.h2>
-
-        <motion.div variants={itemVariants} className="mb-8">
-          <TypewriterText />
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4 mb-12">
-          <Link href="/projects">
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center px-8 py-4 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-all"
+            <motion.span
+              className="inline-block gradient-text"
+              animate={{
+                backgroundPosition: ['100% 50%', '0% 50%', '100% 50%'],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+              style={{
+                background: 'linear-gradient(135deg, oklch(0.6 0.2 200) 0%, var(--primary) 25%, oklch(0.6 0.2 280) 50%, var(--primary) 75%, oklch(0.6 0.2 200) 100%)',
+                backgroundSize: '200% 200%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
             >
-              查看项目
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </motion.button>
-          </Link>
-          <Link href="/about">
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center px-8 py-4 bg-secondary text-secondary-foreground rounded-xl font-medium hover:bg-accent transition-colors"
-            >
-              了解更多
-            </motion.button>
-          </Link>
-        </motion.div>
+              欢迎访问我的个人网站
+            </motion.span>
+          </motion.h2>
 
-        <motion.div variants={itemVariants} className="flex justify-center gap-6">
-          {[
-            { icon: <Github className="w-6 h-6" />, href: 'https://github.com/czj527', label: 'GitHub' },
-            { icon: <Mail className="w-6 h-6" />, href: 'mailto:2719398856@qq.com', label: '邮箱' },
-          ].map((social) => (
-            <motion.a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.2, rotate: 5, y: -5 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-4 rounded-full bg-accent/50 hover:bg-primary/20 backdrop-blur-sm border border-border/50 transition-all"
-              aria-label={social.label}
-            >
-              {social.icon}
-            </motion.a>
-          ))}
-        </motion.div>
+          <motion.div variants={itemVariants} className="mb-8">
+            <TypewriterText />
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4 mb-12">
+            <Link href="/projects">
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center px-8 py-4 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-all"
+              >
+                查看项目
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </motion.button>
+            </Link>
+            <Link href="/about">
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center px-8 py-4 bg-secondary text-secondary-foreground rounded-xl font-medium hover:bg-accent transition-colors"
+              >
+                了解更多
+              </motion.button>
+            </Link>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="flex justify-center gap-6">
+            {[
+              { icon: <Github className="w-6 h-6" />, href: 'https://github.com/czj527', label: 'GitHub' },
+              { icon: <Mail className="w-6 h-6" />, href: 'mailto:2719398856@qq.com', label: '邮箱' },
+            ].map((social) => (
+              <motion.a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.2, rotate: 5, y: -5 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-4 rounded-full bg-accent/50 hover:bg-primary/20 backdrop-blur-sm border border-border/50 transition-all"
+                aria-label={social.label}
+              >
+                {social.icon}
+              </motion.a>
+            ))}
+          </motion.div>
+        </div>
       </motion.div>
 
       <FloatingArrow />
