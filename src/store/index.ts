@@ -42,10 +42,10 @@ const DEFAULT_SETTINGS: AppSettings = {
 // Get current season based on month
 export function getCurrentSeason(): Season {
   const month = new Date().getMonth() + 1; // 1-12
-  if (month >= 3 && month <= 4) return 'spring';
-  if (month >= 5 && month <= 8) return 'summer';
-  if (month >= 9 && month <= 11) return 'autumn';
-  return 'winter'; // 12, 1, 2
+  if (month >= 1 && month <= 3) return 'spring';
+  if (month >= 4 && month <= 6) return 'summer';
+  if (month >= 7 && month <= 9) return 'autumn';
+  return 'winter'; // 10, 11, 12
 }
 
 // Get time period based on hour
