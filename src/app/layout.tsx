@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navigation from '@/components/Navigation'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import { SeasonParticles } from '@/components/effects/SeasonParticles'
+
 
 export const metadata: Metadata = {
   title: {
@@ -32,7 +32,6 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider>
-          <SeasonParticles />
           <Navigation />
           <main className="min-h-screen">
             {children}

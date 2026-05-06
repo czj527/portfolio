@@ -82,8 +82,8 @@ export function SeasonParticles() {
   // Generate particles once per season (deterministic, no re-generation)
   const particles = useMemo(() => generateParticles(season), [season]);
 
-  // Don't render on SSR, or if particles disabled, or light mode
-  if (!mounted || !settings.particleEffects || currentTheme === 'light') {
+  // Don't render on SSR, or if particles disabled, or user chose light mode explicitly
+  if (!mounted || !settings.particleEffects || settings.themeMode === 'light') {
     return null;
   }
 

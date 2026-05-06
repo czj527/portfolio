@@ -2,16 +2,16 @@
 
 import { motion } from 'framer-motion';
 import { Github, Mail, Laptop, BookOpen, Calendar, ListTodo, ArrowRight } from 'lucide-react';
-import { PortalHeroSection } from '@/components/effects/PortalHeroSection';
+import { HeroSection } from '@/components/effects/HeroSection';
 import { ScheduleView } from '@/components/schedule/ScheduleView';
 import { QnASection } from '@/components/effects';
 import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="pt-16">
+    <div>
       {/* Hero 区域 - 个人介绍 */}
-      <PortalHeroSection />
+      <HeroSection />
 
       {/* 中间主体 - 博客/个人内容区 */}
       <section className="py-8 sm:py-12 md:py-16 px-4">
