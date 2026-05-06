@@ -14,7 +14,7 @@ export default function Home() {
       <HeroSection />
 
       {/* 中间主体 - 博客/个人内容区 */}
-      <section className="py-8 sm:py-12 md:py-16 px-4">
+      <section className="py-8 sm:py-12 md:py-16 px-3 sm:px-4">
         <div className="max-w-5xl mx-auto">
           {/* 日程预览卡片 */}
           <motion.div
@@ -25,7 +25,7 @@ export default function Home() {
             className="mb-8 sm:mb-12"
           >
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
                 本周日程
               </h2>
               <Link 
@@ -60,7 +60,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4">
               最新动态
             </h2>
             <div className="glass-card p-4 sm:p-6 md:p-8 max-w-2xl mx-auto">
@@ -77,7 +77,7 @@ export default function Home() {
       </section>
 
       {/* 底部项目导航 - 紧凑版快速入口 */}
-      <section className="py-6 sm:py-8 px-4 border-t border-border/30">
+      <section className="py-5 sm:py-6 md:py-8 px-3 sm:px-4 border-t border-border/30">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0 }}
@@ -86,7 +86,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-center mb-3 sm:mb-4"
           >
-            <p className="text-xs text-muted-foreground/70 uppercase tracking-wider">
+            <p className="text-[10px] sm:text-xs text-muted-foreground/70 uppercase tracking-wider">
               快速入口
             </p>
           </motion.div>
@@ -99,7 +99,7 @@ export default function Home() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-xs sm:text-sm font-medium hover:border-blue-500/50 transition-all"
+              className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-[10px] sm:text-xs md:text-sm font-medium hover:border-blue-500/50 transition-all"
             >
               <Laptop className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
               <span>工作台</span>
@@ -108,11 +108,11 @@ export default function Home() {
             {/* 博客 - 暂不可用 */}
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-xs sm:text-sm font-medium opacity-50 cursor-not-allowed"
+              className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-[10px] sm:text-xs md:text-sm font-medium opacity-50 cursor-not-allowed"
             >
               <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
               <span>博客</span>
-              <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">(开发中)</span>
+              <span className="text-[9px] sm:text-[10px] text-muted-foreground hidden sm:inline">(开发中)</span>
             </motion.div>
 
             {/* 日程表 */}
@@ -122,7 +122,7 @@ export default function Home() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-xs sm:text-sm font-medium hover:border-emerald-500/50 transition-all"
+              className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-[10px] sm:text-xs md:text-sm font-medium hover:border-emerald-500/50 transition-all"
             >
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
               <span>日程</span>
@@ -131,18 +131,19 @@ export default function Home() {
             {/* 四季清单 - 暂不可用 */}
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-xs sm:text-sm font-medium opacity-50 cursor-not-allowed"
+              className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card text-[10px] sm:text-xs md:text-sm font-medium opacity-50 cursor-not-allowed"
             >
               <ListTodo className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
-              <span>四季清单</span>
-              <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">(开发中)</span>
+              <span className="hidden sm:inline">四季清单</span>
+              <span className="sm:hidden">清单</span>
+              <span className="text-[9px] sm:text-[10px] text-muted-foreground hidden sm:inline">(开发中)</span>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* 底部社交链接 */}
-      <section className="py-6 sm:py-8 px-4 border-t border-border/30">
+      <section className="py-5 sm:py-6 md:py-8 px-3 sm:px-4 border-t border-border/30">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -172,7 +173,7 @@ export default function Home() {
               <Mail className="w-4 h-4" />
             </motion.a>
           </div>
-          <p className="text-xs text-muted-foreground mt-3 sm:mt-4 opacity-60">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 opacity-60">
             Made with ❤️ by 长岛冰茶
           </p>
         </motion.div>

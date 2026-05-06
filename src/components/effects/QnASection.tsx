@@ -73,7 +73,7 @@ function QnACard({ item, isExpanded, onToggle }: QnACardProps) {
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.02, rotate: 0 }}
       className={cn(
-        'relative p-4 rounded-xl cursor-pointer transition-all duration-300',
+        'relative p-3 sm:p-4 rounded-xl cursor-pointer transition-all duration-300',
         'border backdrop-blur-sm',
         item.isHighlighted
           ? 'bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 shadow-lg shadow-primary/10'
@@ -86,25 +86,25 @@ function QnACard({ item, isExpanded, onToggle }: QnACardProps) {
         <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 blur-sm -z-10" />
       )}
       
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-start justify-between gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
             {item.isHighlighted && (
               <motion.span
                 animate={{ rotate: 360 }}
                 transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-                className="text-sm"
+                className="text-xs sm:text-sm"
               >
                 ✨
               </motion.span>
             )}
-            <span className="text-sm text-muted-foreground">@{item.author}</span>
-            <span className="text-xs text-muted-foreground/60">{item.createdAt}</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">@{item.author}</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground/60 hidden sm:inline">{item.createdAt}</span>
           </div>
           
-          <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
-            <MessageCircle className="w-4 h-4 text-primary" />
-            {item.question}
+          <h3 className="font-medium text-sm sm:text-lg mb-1 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+            <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
+            <span className="line-clamp-2">{item.question}</span>
           </h3>
         </div>
         
@@ -113,7 +113,7 @@ function QnACard({ item, isExpanded, onToggle }: QnACardProps) {
           transition={{ duration: 0.3 }}
           className="flex-shrink-0"
         >
-          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
         </motion.div>
       </div>
       
@@ -121,22 +121,22 @@ function QnACard({ item, isExpanded, onToggle }: QnACardProps) {
         {isExpanded && (
           <motion.div
             initial={{ opacity: 0, height: 0, marginTop: 0 }}
-            animate={{ opacity: 1, height: 'auto', marginTop: '1rem' }}
+            animate={{ opacity: 1, height: 'auto', marginTop: '0.75rem sm:1rem' }}
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
             <div className={cn(
-              'p-4 rounded-lg',
+              'p-3 sm:p-4 rounded-lg',
               item.isHighlighted
                 ? 'bg-primary/5 border border-primary/20'
                 : 'bg-accent/30'
             )}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">☕</span>
-                <span className="font-medium text-primary">长岛冰茶</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                <span className="text-sm sm:text-lg">☕</span>
+                <span className="font-medium text-primary text-sm sm:text-base">长岛冰茶</span>
               </div>
-              <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
             </div>
           </motion.div>
         )}
@@ -189,20 +189,20 @@ export function QnASection() {
   };
   
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-card/50 to-background">
+    <section className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-gradient-to-b from-card/50 to-background">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             访客问答
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">有什么想问的？</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">有什么想问的？</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl mx-auto px-2">
             欢迎在下方留言，我会认真回复每一个问题。可以是技术相关，也可以是关于我的任何问题。
           </p>
         </motion.div>
@@ -213,9 +213,9 @@ export function QnASection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 px-2">
               {highlightedItems.map(item => (
                 <motion.div
                   key={item.id}
@@ -223,11 +223,11 @@ export function QnASection() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="p-4 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 backdrop-blur-sm max-w-xs cursor-pointer"
+                  className="p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 backdrop-blur-sm max-w-[140px] sm:max-w-xs cursor-pointer"
                   onClick={() => handleToggle(item.id)}
                 >
-                  <div className="text-sm text-muted-foreground mb-2">@{item.author}</div>
-                  <h4 className="font-medium text-sm line-clamp-2">{item.question}</h4>
+                  <div className="text-xs text-muted-foreground mb-1.5 sm:mb-2">@{item.author}</div>
+                  <h4 className="font-medium text-xs sm:text-sm line-clamp-2">{item.question}</h4>
                 </motion.div>
               ))}
             </div>
@@ -235,7 +235,7 @@ export function QnASection() {
         )}
         
         {/* Q&A List */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
           {qnaList.map(item => (
             <QnACard
               key={item.id}
@@ -251,25 +251,25 @@ export function QnASection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="p-6 rounded-2xl bg-card/80 border border-border backdrop-blur-sm"
+          className="p-4 sm:p-6 rounded-2xl bg-card/80 border border-border backdrop-blur-sm"
         >
-          <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-primary" />
+          <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             提问
           </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex gap-3">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <Input
                 value={newQuestion}
                 onChange={(e) => setNewQuestion(e.target.value)}
                 placeholder="输入你的问题..."
-                className="flex-1"
+                className="flex-1 text-sm"
                 disabled={isSubmitting}
               />
               <Button
                 type="submit"
                 disabled={isSubmitting || !newQuestion.trim()}
-                className="min-w-[100px]"
+                className="min-w-[80px] sm:min-w-[100px] text-sm"
               >
                 {isSubmitting ? (
                   <motion.span
@@ -280,13 +280,13 @@ export function QnASection() {
                   </motion.span>
                 ) : (
                   <>
-                    <Send className="w-4 h-4 mr-2" />
+                    <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                     发送
                   </>
                 )}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               提示：你可以问我关于技术、学习、生活等任何问题！
             </p>
           </form>

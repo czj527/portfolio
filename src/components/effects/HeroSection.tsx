@@ -44,7 +44,7 @@ function TypewriterText() {
   }, [currentText, isDeleting, currentPhraseIndex]);
 
   return (
-    <span className="text-lg md:text-2xl text-muted-foreground min-h-[2rem]">
+    <span className="text-base sm:text-lg md:text-2xl text-muted-foreground min-h-[2rem]">
       {currentText}
       <span className="animate-pulse">|</span>
     </span>
@@ -101,7 +101,7 @@ const TiltCard = memo(function TiltCard() {
         <img
           src="/avatar.jpg"
           alt="个人头像"
-          className="relative w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-3 border-background shadow-xl"
+          className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full object-cover border-3 border-background shadow-xl"
           style={{ boxShadow: '0 15px 35px -10px rgba(0, 0, 0, 0.3)' }}
         />
       </motion.div>
@@ -109,26 +109,47 @@ const TiltCard = memo(function TiltCard() {
   );
 });
 
-// ==================== Profile Card (Top-Left) ====================
+// ==================== Profile Card (Mobile: Top Center, Desktop: Left) ====================
 function ProfileCard() {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.6, delay: 0.1 }}
-      className="absolute top-20 left-6 md:left-12 z-20 flex items-center gap-4"
-    >
-      <TiltCard />
-      <div className="min-w-0">
-        <h2 className="text-lg md:text-xl font-bold text-primary">长岛冰茶</h2>
-        <p className="text-xs md:text-sm text-muted-foreground">全栈开发者 · AI 辅助开发</p>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[10px] md:text-xs text-muted-foreground/60">
-          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />武汉</span>
-          <span className="flex items-center gap-1"><GraduationCap className="w-3 h-3" />大三在读</span>
-          <a href="https://github.com/czj527" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-foreground transition-colors"><Github className="w-3 h-3" />czj527</a>
+    <>
+      {/* Desktop: 绝对定位左上角 */}
+      <motion.div
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="hidden md:flex absolute top-20 left-12 z-20 items-center gap-4"
+      >
+        <TiltCard />
+        <div className="min-w-0">
+          <h2 className="text-lg md:text-xl font-bold text-primary">长岛冰茶</h2>
+          <p className="text-xs md:text-sm text-muted-foreground">全栈开发者 · AI 辅助开发</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[10px] md:text-xs text-muted-foreground/60">
+            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />武汉</span>
+            <span className="flex items-center gap-1"><GraduationCap className="w-3 h-3" />大三在读</span>
+            <a href="https://github.com/czj527" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-foreground transition-colors"><Github className="w-3 h-3" />czj527</a>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      {/* Mobile: 顶部居中显示 */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="flex md:hidden flex-col items-center gap-2 pt-20 pb-4 z-20"
+      >
+        <TiltCard />
+        <div className="text-center">
+          <h2 className="text-base font-bold text-primary">长岛冰茶</h2>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">全栈开发者 · AI 辅助开发</p>
+          <div className="flex items-center justify-center gap-x-2 gap-y-0.5 mt-1 text-[10px] text-muted-foreground/60">
+            <span className="flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" />武汉</span>
+            <span className="flex items-center gap-0.5"><GraduationCap className="w-2.5 h-2.5" />大三在读</span>
+          </div>
+        </div>
+      </motion.div>
+    </>
   );
 }
 
@@ -319,21 +340,21 @@ function LiveStatus() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="mx-auto max-w-sm w-full"
+      className="mx-auto w-full max-w-xs sm:max-w-sm"
     >
-      <div className="px-5 py-4 rounded-2xl bg-card/50 backdrop-blur-xl border border-border/40 shadow-md">
+      <div className="px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-card/50 backdrop-blur-xl border border-border/40 shadow-md">
         {/* 顶部：emoji + 标题 */}
-        <div className="flex items-start gap-3">
-          <span className="text-3xl">{status.emoji}</span>
+        <div className="flex items-start gap-2 sm:gap-3">
+          <span className="text-2xl sm:text-3xl">{status.emoji}</span>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold">{status.main}</div>
-            <div className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{status.mood}</div>
+            <div className="text-xs sm:text-sm font-semibold">{status.main}</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{status.mood}</div>
           </div>
         </div>
 
         {/* 进度条 */}
         {status.progress && (
-          <div className="mt-3">
+          <div className="mt-2.5 sm:mt-3">
             <div className="flex items-center justify-between text-[10px] text-muted-foreground/60 mb-1">
               <span>{status.progress.label}</span>
               <span>{status.progress.percent}%</span>
@@ -351,14 +372,14 @@ function LiveStatus() {
 
         {/* 时间 */}
         {status.subtext && (
-          <div className="text-[10px] text-muted-foreground/50 mt-2.5 font-mono">{status.subtext}</div>
+          <div className="text-[10px] sm:text-[10px] text-muted-foreground/50 mt-2 font-mono">{status.subtext}</div>
         )}
 
         {/* 标签 */}
         {status.tags && status.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2.5">
+          <div className="flex flex-wrap gap-1 mt-2 sm:mt-2.5">
             {status.tags.map((tag) => (
-              <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/70 border border-primary/10">
+              <span key={tag} className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full bg-primary/10 text-primary/70 border border-primary/10">
                 {tag}
               </span>
             ))}
@@ -404,12 +425,12 @@ function StarBackground() {
 function FloatingArrow() {
   return (
     <motion.div
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer"
+      className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 cursor-pointer"
       animate={{ y: [0, 10, 0] }}
       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
     >
-      <ChevronDown className="w-8 h-8 text-muted-foreground hover:text-primary transition-colors" />
+      <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground hover:text-primary transition-colors" />
     </motion.div>
   );
 }
@@ -427,24 +448,24 @@ export function HeroSection() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-4 pt-20 pb-8 relative overflow-hidden">
+    <section className="min-h-screen flex items-center justify-center px-3 sm:px-4 pt-16 sm:pt-20 pb-6 sm:pb-8 relative overflow-hidden">
       <StarBackground />
 
-      {/* 个人资料 - 左上角 */}
+      {/* 个人资料 - 移动端顶部居中，桌面端左上角 */}
       <ProfileCard />
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-4xl mx-auto text-center relative z-10"
+        className="max-w-4xl mx-auto text-center relative z-10 w-full"
       >
-        <motion.div variants={itemVariants} className="mb-6">
-          <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium backdrop-blur-sm border border-primary/20">
+        <motion.div variants={itemVariants} className="mb-4 sm:mb-6">
+          <span className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium backdrop-blur-sm border border-primary/20">
             <motion.span
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="mr-2 inline-block"
+              className="mr-1.5 sm:mr-2 inline-block"
             >
               ✨
             </motion.span>
@@ -453,13 +474,13 @@ export function HeroSection() {
         </motion.div>
 
         {/* 实时状态 - 独立组件 */}
-        <motion.div variants={itemVariants} className="mb-8">
+        <motion.div variants={itemVariants} className="mb-6 sm:mb-8 px-2">
           <LiveStatus />
         </motion.div>
 
         <motion.h1
           variants={itemVariants}
-          className="text-5xl md:text-7xl font-bold mb-4"
+          className="text-3xl sm:text-5xl md:text-7xl font-bold mb-3 sm:mb-4 leading-tight"
         >
           <motion.span
             className="inline-block gradient-text"
@@ -479,7 +500,7 @@ export function HeroSection() {
 
         <motion.h2
           variants={itemVariants}
-          className="text-4xl md:text-6xl font-bold mb-8"
+          className="text-2xl sm:text-4xl md:text-6xl font-bold mb-6 sm:mb-8 leading-tight"
         >
           <motion.span
             className="inline-block gradient-text"
@@ -497,36 +518,36 @@ export function HeroSection() {
           </motion.span>
         </motion.h2>
 
-        <motion.div variants={itemVariants} className="mb-8">
+        <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
           <TypewriterText />
         </motion.div>
 
-        <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4 mb-12">
+        <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-12">
           <Link href="/projects">
             <motion.button
               whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center px-8 py-4 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-all"
+              className="flex items-center px-5 py-2.5 sm:px-8 sm:py-4 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-all text-sm sm:text-base"
             >
               查看项目
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
             </motion.button>
           </Link>
           <Link href="/about">
             <motion.button
               whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center px-8 py-4 bg-secondary text-secondary-foreground rounded-xl font-medium hover:bg-accent transition-colors"
+              className="flex items-center px-5 py-2.5 sm:px-8 sm:py-4 bg-secondary text-secondary-foreground rounded-xl font-medium hover:bg-accent transition-colors text-sm sm:text-base"
             >
               了解更多
             </motion.button>
           </Link>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="flex justify-center gap-6">
+        <motion.div variants={itemVariants} className="flex justify-center gap-4 sm:gap-6">
           {[
-            { icon: <Github className="w-6 h-6" />, href: 'https://github.com/czj527', label: 'GitHub' },
-            { icon: <Mail className="w-6 h-6" />, href: 'mailto:2719398856@qq.com', label: '邮箱' },
+            { icon: <Github className="w-5 h-5 sm:w-6 sm:h-6" />, href: 'https://github.com/czj527', label: 'GitHub' },
+            { icon: <Mail className="w-5 h-5 sm:w-6 sm:h-6" />, href: 'mailto:2719398856@qq.com', label: '邮箱' },
           ].map((social) => (
             <motion.a
               key={social.label}
@@ -535,7 +556,7 @@ export function HeroSection() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.2, rotate: 5, y: -5 }}
               whileTap={{ scale: 0.9 }}
-              className="p-4 rounded-full bg-accent/50 hover:bg-primary/20 backdrop-blur-sm border border-border/50 transition-all"
+              className="p-3 sm:p-4 rounded-full bg-accent/50 hover:bg-primary/20 backdrop-blur-sm border border-border/50 transition-all"
               aria-label={social.label}
             >
               {social.icon}
