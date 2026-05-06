@@ -120,7 +120,7 @@ function ProfileCard() {
     >
       <TiltCard />
       <div className="min-w-0">
-        <h2 className="text-lg md:text-xl font-bold gradient-text">长岛冰茶</h2>
+        <h2 className="text-lg md:text-xl font-bold text-primary">长岛冰茶</h2>
         <p className="text-xs md:text-sm text-muted-foreground">全栈开发者 · AI 辅助开发</p>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[10px] md:text-xs text-muted-foreground/60">
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />武汉</span>
