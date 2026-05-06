@@ -13,8 +13,8 @@ const ALL_BRIGHTNESS_CLASSES: BrightnessClass[] = ['light', 'dark'];
 function getCurrentSeason(): SeasonClass {
   if (typeof window === 'undefined') return 'spring';
   const month = new Date().getMonth() + 1;
-  if (month >= 3 && month <= 5) return 'spring';
-  if (month >= 6 && month <= 8) return 'summer';
+  if (month >= 3 && month <= 4) return 'spring';
+  if (month >= 5 && month <= 8) return 'summer';
   if (month >= 9 && month <= 11) return 'autumn';
   return 'winter';
 }
