@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { formatDate, getTimePeriod } from '@/store';
@@ -33,13 +33,7 @@ interface ScheduleItem {
   type: 'class' | 'work' | 'personal';
 }
 
-const MOCK_SCHEDULES: ScheduleItem[] = [
-  { id: '1', title: '高等数学', description: '线性代数', date: '', startTime: '08:00', duration: 90, color: '#3b82f6', type: 'class' },
-  { id: '2', title: '计算机网络', description: '期末复习', date: '', startTime: '14:00', duration: 90, color: '#8b5cf6', type: 'class' },
-  { id: '3', title: '团队会议', description: '项目进度汇报', date: '', startTime: '09:30', duration: 90, color: '#10b981', type: 'work' },
-  { id: '4', title: '健身', description: '有氧训练', date: '', startTime: '18:30', duration: 90, color: '#f59e0b', type: 'personal' },
-  { id: '5', title: '算法训练', description: 'LeetCode刷题', date: '', startTime: '20:00', duration: 90, color: '#ef4444', type: 'work' },
-];
+
 
 function getTimeSlotIndex(time: string): number {
   const [hours, minutes] = time.split(':').map(Number);
@@ -241,18 +235,32 @@ export function ScheduleView() {
   const weekDates = useMemo(() => getWeekDates(currentWeekStart), [currentWeekStart]);
   const todayString = useMemo(() => formatDate(new Date()), []);
   
-  // Generate schedules with dates
-  const schedules = useMemo(() => {
-    return MOCK_SCHEDULES.map((schedule, index) => {
-      // Deterministic day assignment to avoid hydration mismatch
-      const dayIndex = index % 5; // Weekdays only, cycle through
-      const date = new Date(weekDates[dayIndex]);
-      return {
-        ...schedule,
-        date: formatDate(date),
-      };
-    });
-  }, [weekDates]);
+  // Fetch schedules from API
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchSchedules = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/schedules?owner_id=czj527');
+      if (response.ok) {
+        const data = await response.json();
+        setSchedules(data);
+      } else {
+        console.error('Failed to fetch schedules:', response.status);
+        setSchedules([]);
+      }
+    } catch (err) {
+      console.error('Error fetching schedules:', err);
+      setSchedules([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSchedules();
+  }, [fetchSchedules]);
   
   // Update current time every minute (client only to avoid hydration mismatch)
   useEffect(() => {
@@ -353,7 +361,17 @@ export function ScheduleView() {
         
         {/* Day columns */}
         <div className="flex flex-1 overflow-x-auto">
-          {weekDates.map((date) => (
+          {isLoading && (
+            <div className="flex-1 flex items-center justify-center h-[640px] text-muted-foreground text-sm">
+              加载日程中...
+            </div>
+          )}
+          {!isLoading && schedules.length === 0 && (
+            <div className="flex-1 flex items-center justify-center h-[640px] text-muted-foreground text-sm">
+              暂无日程安排
+            </div>
+          )}
+          {!isLoading && schedules.length > 0 && weekDates.map((date) => (
             <DayColumn
               key={date.toISOString()}
               date={date}
