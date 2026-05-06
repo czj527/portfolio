@@ -138,7 +138,7 @@ export function PortalHeroSection() {
   };
 
   return (
-    <section className="min-h-[60vh] sm:min-h-[50vh] flex items-center justify-center px-4 relative overflow-hidden pt-24 sm:pt-16">
+    <section className="min-h-[60vh] flex items-center justify-center px-4 relative overflow-hidden">
       <StarBackground />
       
       <motion.div

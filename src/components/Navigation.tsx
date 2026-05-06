@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Github, Mail, Menu, X, Sun, Moon } from 'lucide-react'
+import { Github, Mail, Menu, X } from 'lucide-react'
 import { useAdmin } from '@/hooks/use-admin'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { useTheme } from 'next-themes'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const navItems = [
   { name: '首页', path: '/' },
@@ -24,20 +24,10 @@ export default function Navigation() {
   const pathname = usePathname()
   const { isAdmin, logout } = useAdmin()
   const [menuOpen, setMenuOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     setMenuOpen(false)
   }, [pathname])
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }
 
   return (
     <motion.nav
@@ -105,17 +95,8 @@ export default function Navigation() {
                 <Button variant="outline" size="sm" className="h-8 text-muted-foreground">管理</Button>
               </Link>
             )}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-accent transition-colors"
-              aria-label="切换主题"
-            >
-              {mounted && (theme === 'dark' ? (
-                <Sun className="w-5 h-5 text-amber-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-slate-600" />
-              ))}
-            </button>
+            {/* 使用四季主题切换组件 */}
+            <ThemeToggle />
             <motion.a
               href="https://github.com/czj527"
               target="_blank"
@@ -138,19 +119,8 @@ export default function Navigation() {
 
           {/* 移动端操作区：主题切换 + 菜单按钮 */}
           <div className="flex md:hidden items-center gap-1">
-            {/* 移动端主题切换按钮 */}
-            <motion.button
-              onClick={toggleTheme}
-              whileTap={{ scale: 0.9 }}
-              className="p-2 rounded-lg hover:bg-accent transition-colors"
-              aria-label="切换主题"
-            >
-              {mounted && (theme === 'dark' ? (
-                <Sun className="w-5 h-5 text-amber-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-slate-600" />
-              ))}
-            </motion.button>
+            {/* 使用四季主题切换组件 */}
+            <ThemeToggle />
             
             {/* 汉堡菜单按钮 */}
             <button

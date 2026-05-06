@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="pt-14 sm:pt-16">
+    <div className="pt-16">
       {/* Hero 区域 - 个人介绍 */}
       <PortalHeroSection />
 
