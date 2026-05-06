@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Github, Mail, Laptop, BookOpen, Calendar, ListTodo, ArrowRight } from 'lucide-react';
 import { PortalHeroSection } from '@/components/effects/PortalHeroSection';
 import { ScheduleView } from '@/components/schedule/ScheduleView';
+import { QnASection } from '@/components/effects';
 import Link from 'next/link';
 
 export default function Home() {
@@ -38,6 +39,17 @@ export default function Home() {
             <div className="bg-card/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-border/50">
               <ScheduleView />
             </div>
+          </motion.div>
+
+          {/* 问答模块 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-8 sm:mb-12"
+          >
+            <QnASection />
           </motion.div>
 
           {/* 最新动态 */}

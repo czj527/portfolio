@@ -5,17 +5,50 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { formatDate } from '@/store';
 
-const TIME_SLOTS = [
-  { id: 1, start: '08:00', end: '09:30' },
-  { id: 2, start: '09:30', end: '11:00' },
-  { id: 3, start: '11:00', end: '12:30' },
-  { id: 4, start: '12:30', end: '14:00' },
-  { id: 5, start: '14:00', end: '15:30' },
-  { id: 6, start: '15:30', end: '17:00' },
-  { id: 7, start: '17:00', end: '18:30' },
-  { id: 8, start: '18:30', end: '20:00' },
-  { id: 9, start: '20:00', end: '21:30' },
-  { id: 10, start: '21:30', end: '23:00' },
+// ==================== 常量定义 ====================
+const DAY_START_MINUTES = 480;   // 08:00 = 480分钟
+const DAY_END_MINUTES = 1380;    // 23:00 = 1380分钟
+const DAY_TOTAL_MINUTES = 900;   // 15小时 = 900分钟
+const TIMELINE_HEIGHT = 640;     // 像素高度
+
+// 基于精确时间的辅助函数
+function getTimeToY(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  const totalMinutes = hours * 60 + minutes;
+  return ((totalMinutes - DAY_START_MINUTES) / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT;
+}
+
+function getDurationHeight(duration: number): number {
+  return (duration / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT;
+}
+
+// 计算结束时间
+function calculateEndTime(startTime: string, duration: number): string {
+  const [h, m] = startTime.split(':').map(Number);
+  const totalMinutes = h * 60 + m + duration;
+  const endH = Math.floor(totalMinutes / 60) % 24;
+  const endM = totalMinutes % 60;
+  return `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
+}
+
+// 时间网格线数据
+const TIME_GRID = [
+  { time: '08:00', y: 0 },
+  { time: '09:00', y: (60 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '10:00', y: (120 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '11:00', y: (180 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '12:00', y: (240 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '13:00', y: (300 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '14:00', y: (360 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '15:00', y: (420 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '16:00', y: (480 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '17:00', y: (540 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '18:00', y: (600 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '19:00', y: (660 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '20:00', y: (720 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '21:00', y: (780 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '22:00', y: (840 / DAY_TOTAL_MINUTES) * TIMELINE_HEIGHT },
+  { time: '23:00', y: TIMELINE_HEIGHT },
 ];
 
 const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -29,13 +62,6 @@ interface ScheduleItem {
   duration: number;
   color: string;
   type: 'class' | 'work' | 'personal';
-}
-
-function getTimeSlotIndex(time: string): number {
-  const [hours, minutes] = time.split(':').map(Number);
-  const totalMinutes = hours * 60 + minutes;
-  const startMinutes = 8 * 60;
-  return Math.max(0, Math.min(9, Math.floor((totalMinutes - startMinutes) / 90)));
 }
 
 function getWeekDates(weekStart: Date): Date[] {
@@ -65,17 +91,16 @@ function CurrentTimeIndicator() {
   
   const hours = currentTime.getHours();
   const minutes = currentTime.getMinutes();
-  const totalMinutes = hours * 60 + minutes;
-  const startMinutes = 8 * 60;
-  const position = ((totalMinutes - startMinutes) / (15 * 60)) * 100;
+  const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  const position = getTimeToY(timeString);
   
-  if (position < 0 || position > 100) return null;
+  if (position < 0 || position > TIMELINE_HEIGHT) return null;
   
   return (
-    <div className="absolute left-0 right-0 h-0.5 bg-red-500 z-40 pointer-events-none" style={{ top: `${position}%` }}>
+    <div className="absolute left-0 right-0 h-0.5 bg-red-500 z-40 pointer-events-none" style={{ top: `${position}px` }}>
       <div className="absolute -left-1 -top-1 w-2 h-2 rounded-full bg-red-500" />
       <div className="absolute -right-1 top-1/2 -translate-y-1/2 px-2 py-0.5 bg-red-500 text-white text-xs rounded">
-        {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}
+        {timeString}
       </div>
     </div>
   );
@@ -83,13 +108,14 @@ function CurrentTimeIndicator() {
 
 interface ScheduleCardProps {
   schedule: ScheduleItem;
-  slotIndex: number;
-  slotSpan: number;
   isPast: boolean;
 }
 
-function ScheduleCard({ schedule, slotIndex, slotSpan, isPast }: ScheduleCardProps) {
-  const height = slotSpan * 64 - 8;
+function ScheduleCard({ schedule, isPast }: ScheduleCardProps) {
+  const yPosition = getTimeToY(schedule.startTime);
+  const height = getDurationHeight(schedule.duration);
+  const endTime = calculateEndTime(schedule.startTime, schedule.duration);
+  
   const typeColors = {
     class: 'from-blue-500/90 to-indigo-500/90',
     work: 'from-emerald-500/90 to-teal-500/90',
@@ -103,12 +129,14 @@ function ScheduleCard({ schedule, slotIndex, slotSpan, isPast }: ScheduleCardPro
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.02, zIndex: 30 }}
       className={cn(
-        'absolute inset-x-1 top-1 rounded-lg px-3 py-2 overflow-hidden cursor-pointer transition-all',
+        'absolute inset-x-1 top-0 rounded-lg px-3 py-2 overflow-hidden cursor-pointer transition-all',
         'backdrop-blur-md border border-white/20',
         isPast && 'opacity-50 grayscale-[20%]'
       )}
       style={{
-        height: `${height}px`,
+        top: `${yPosition}px`,
+        height: `${height - 4}px`,
+        minHeight: '40px',
         background: `linear-gradient(135deg, ${schedule.color}40, ${schedule.color}20)`,
         boxShadow: `0 4px 15px ${schedule.color}30`,
       }}
@@ -119,11 +147,11 @@ function ScheduleCard({ schedule, slotIndex, slotSpan, isPast }: ScheduleCardPro
           <span className="text-lg" suppressHydrationWarning>{typeIcons[schedule.type]}</span>
           {!isPast && <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse" />}
         </div>
-        <div className="flex-1 mt-1">
+        <div className="flex-1 mt-1 overflow-hidden">
           <h4 className="text-sm font-medium text-white truncate">{schedule.title}</h4>
           {schedule.description && <p className="text-xs text-white/70 truncate mt-0.5">{schedule.description}</p>}
           <p className="text-xs text-white/60 mt-1">
-            {TIME_SLOTS[slotIndex]?.start} - {TIME_SLOTS[Math.min(slotIndex + slotSpan - 1, 9)]?.end}
+            {schedule.startTime} - {endTime}
           </p>
         </div>
       </div>
@@ -153,16 +181,16 @@ function DayColumn({ date, schedules, isToday, isPast }: DayColumnProps) {
         </div>
       </div>
       <div className="relative h-[640px]">
-        {TIME_SLOTS.map((slot, index) => (
-          <div key={slot.id} className="absolute left-0 right-0 border-t border-border/30" style={{ top: `${index * 64}px` }}>
-            <span className="absolute -top-3 left-1 text-[10px] text-muted-foreground/60">{slot.start}</span>
+        {/* 时间网格线 */}
+        {TIME_GRID.map((grid, index) => (
+          <div key={grid.time} className="absolute left-0 right-0 border-t border-border/30" style={{ top: `${grid.y}px` }}>
+            <span className="absolute -top-3 left-1 text-[10px] text-muted-foreground/60">{grid.time}</span>
           </div>
         ))}
-        {daySchedules.map((schedule) => {
-          const slotIndex = getTimeSlotIndex(schedule.startTime);
-          const slotSpan = Math.ceil(schedule.duration / 90);
-          return <ScheduleCard key={schedule.id} schedule={schedule} slotIndex={slotIndex} slotSpan={slotSpan} isPast={isPast} />;
-        })}
+        {/* 日程卡片 */}
+        {daySchedules.map((schedule) => (
+          <ScheduleCard key={schedule.id} schedule={schedule} isPast={isPast} />
+        ))}
         {isToday && <CurrentTimeIndicator />}
       </div>
     </div>
@@ -217,11 +245,7 @@ function MobileTodayView({ schedules, today, isPast }: MobileTodayViewProps) {
           <div className="text-center py-8 text-muted-foreground text-sm">今日暂无日程</div>
         ) : (
           sortedSchedules.map((schedule) => {
-            const [h, m] = schedule.startTime.split(':').map(Number);
-            const totalMinutes = h * 60 + m + schedule.duration;
-            const endH = Math.floor(totalMinutes / 60) % 24;
-            const endM = totalMinutes % 60;
-            const endTime = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
+            const endTime = calculateEndTime(schedule.startTime, schedule.duration);
             
             return (
               <motion.div
@@ -298,9 +322,9 @@ function DesktopWeekView({
         <div className="w-12 flex-shrink-0 border-r border-border/50">
           <div className="h-[88px] border-b border-border/50" />
           <div className="relative h-[640px]">
-            {TIME_SLOTS.map((slot, index) => (
-              <div key={slot.id} className="absolute left-0 right-0 text-right pr-2" style={{ top: `${index * 64}px` }}>
-                <span className="text-[10px] text-muted-foreground/60">{slot.start}</span>
+            {TIME_GRID.map((grid) => (
+              <div key={grid.time} className="absolute left-0 right-0 text-right pr-2" style={{ top: `${grid.y}px` }}>
+                <span className="text-[10px] text-muted-foreground/60">{grid.time}</span>
               </div>
             ))}
           </div>

@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Link from 'next/link';
-import { Github, Mail, Globe } from 'lucide-react';
+import { Github, Mail, Globe, Sparkles } from 'lucide-react';
 import { useAppStore } from '@/store';
 
-// ==================== 3D Tilt Card ====================
+// ==================== 3D Tilt Card (复用并简化) ====================
 const TiltCard = memo(function TiltCard() {
   const currentTheme = useAppStore((state) => state.currentTheme);
   const isDark = currentTheme === 'dark' || currentTheme === 'winter';
@@ -63,7 +63,7 @@ const TiltCard = memo(function TiltCard() {
         <img
           src="/avatar.jpg"
           alt="个人头像"
-          className="relative w-28 h-28 sm:w-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-background shadow-2xl"
+          className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-background shadow-2xl"
           style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
         />
       </motion.div>
@@ -138,7 +138,7 @@ export function PortalHeroSection() {
   };
 
   return (
-    <section className="min-h-[50vh] sm:min-h-[60vh] flex items-center justify-center px-4 relative overflow-hidden pt-16 sm:pt-20 md:pt-24">
+    <section className="min-h-[60vh] sm:min-h-[50vh] flex items-center justify-center px-4 relative overflow-hidden pt-24 sm:pt-16">
       <StarBackground />
       
       <motion.div
@@ -148,18 +148,18 @@ export function PortalHeroSection() {
         className="max-w-4xl mx-auto text-center relative z-10"
       >
         {/* 头像 */}
-        <motion.div variants={itemVariants} className="mb-4 sm:mb-6">
+        <motion.div variants={itemVariants} className="mb-6 sm:mb-4">
           <TiltCard />
         </motion.div>
 
         {/* 名字 */}
         <motion.h1
           variants={itemVariants}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 leading-tight"
+          className="text-4xl md:text-6xl font-bold mb-4 sm:mb-3 leading-tight"
         >
           <span className="text-foreground">你好，我是</span>
           <motion.span
-            className="inline-block ml-1 sm:ml-2 gradient-text"
+            className="inline-block ml-2 sm:ml-1 gradient-text"
             animate={{
               rotate: [0, -2, 2, 0],
             }}
@@ -176,13 +176,13 @@ export function PortalHeroSection() {
         {/* 一句话介绍 */}
         <motion.p
           variants={itemVariants}
-          className="text-sm sm:text-base md:text-lg text-muted-foreground mb-4 sm:mb-6 px-2"
+          className="text-lg md:text-xl text-muted-foreground mb-6 sm:mb-4"
         >
           全栈开发者 · 喜欢折腾有趣的东西
         </motion.p>
 
         {/* 社交链接 */}
-        <motion.div variants={itemVariants} className="flex justify-center gap-3 sm:gap-4">
+        <motion.div variants={itemVariants} className="flex justify-center gap-4 sm:gap-3">
           {[
             { icon: Github, href: 'https://github.com/czj527', label: 'GitHub' },
             { icon: Mail, href: 'mailto:2719398856@qq.com', label: '邮箱' },
@@ -195,10 +195,10 @@ export function PortalHeroSection() {
               rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
               whileHover={{ scale: 1.15, y: -3 }}
               whileTap={{ scale: 0.9 }}
-              className="p-2 sm:p-3 rounded-full bg-accent/50 hover:bg-primary/20 backdrop-blur-sm border border-border/50 transition-all"
+              className="p-3 sm:p-2 rounded-full bg-accent/50 hover:bg-primary/20 backdrop-blur-sm border border-border/50 transition-all"
               aria-label={social.label}
             >
-              <social.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <social.icon className="w-5 h-5 sm:w-4 sm:h-4" />
             </motion.a>
           ))}
         </motion.div>
