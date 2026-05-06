@@ -36,7 +36,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-4 border border-border/50">
-              <ScheduleView ownerId="czj527" showLegend={false} />
+              <ScheduleView />
             </div>
           </motion.div>
 
