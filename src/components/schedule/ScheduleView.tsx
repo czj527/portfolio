@@ -116,12 +116,16 @@ function ScheduleCard({ schedule, isPast }: ScheduleCardProps) {
   const height = getDurationHeight(schedule.duration);
   const endTime = calculateEndTime(schedule.startTime, schedule.duration);
   
+  // 根据卡片高度动态决定显示内容
+  const showTime = height >= 50;
+  const showDescription = height >= 120;
+  const showIcon = height >= 80;
+  
   const typeColors = {
     class: 'from-blue-500/90 to-indigo-500/90',
     work: 'from-emerald-500/90 to-teal-500/90',
     personal: 'from-amber-500/90 to-orange-500/90',
   };
-  const typeIcons = { class: '📚', work: '💼', personal: '🎯' };
   
   return (
     <motion.div
@@ -129,31 +133,37 @@ function ScheduleCard({ schedule, isPast }: ScheduleCardProps) {
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.02, zIndex: 30 }}
       className={cn(
-        'absolute inset-x-1 top-0 rounded-lg px-3 py-2 overflow-hidden cursor-pointer transition-all',
+        'absolute inset-x-1 rounded-md px-2 py-1 overflow-hidden cursor-pointer transition-all',
         'backdrop-blur-md border border-white/20',
         isPast && 'opacity-50 grayscale-[20%]'
       )}
       style={{
         top: `${yPosition}px`,
         height: `${height - 4}px`,
-        minHeight: '40px',
+        minHeight: '28px',
         background: `linear-gradient(135deg, ${schedule.color}40, ${schedule.color}20)`,
         boxShadow: `0 4px 15px ${schedule.color}30`,
       }}
     >
       <div className={cn('absolute inset-0 bg-gradient-to-br opacity-80', typeColors[schedule.type])} />
-      <div className="relative z-10 h-full flex flex-col">
-        <div className="flex items-start justify-between">
-          <span className="text-lg" suppressHydrationWarning>{typeIcons[schedule.type]}</span>
-          {!isPast && <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse" />}
+      <div className="relative z-10 h-full flex flex-col justify-center">
+        <div className="flex items-center gap-1">
+          {showIcon && <span className="text-xs flex-shrink-0" suppressHydrationWarning>
+            {schedule.type === 'class' ? '📚' : schedule.type === 'work' ? '💼' : '🎯'}
+          </span>}
+          <h4 className="text-xs font-medium text-white truncate leading-tight">{schedule.title}</h4>
+          {!isPast && height >= 40 && <div className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse flex-shrink-0" />}
         </div>
-        <div className="flex-1 mt-1 overflow-hidden">
-          <h4 className="text-sm font-medium text-white truncate">{schedule.title}</h4>
-          {schedule.description && <p className="text-xs text-white/70 truncate mt-0.5">{schedule.description}</p>}
-          <p className="text-xs text-white/60 mt-1">
+        {showTime && (
+          <p className="text-[10px] text-white/80 mt-0.5 leading-tight">
             {schedule.startTime} - {endTime}
           </p>
-        </div>
+        )}
+        {showDescription && schedule.description && (
+          <p className="text-[10px] text-white/70 mt-0.5 line-clamp-2 leading-tight">
+            {schedule.description}
+          </p>
+        )}
       </div>
     </motion.div>
   );
