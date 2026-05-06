@@ -8,7 +8,7 @@ interface ScheduleItem {
   title: string;
   description?: string;
   date: string;
-  start_time: string;
+  startTime: string; // Frontend format (mapped from start_time in DB)
   duration?: number;
   color?: string;
   type?: 'class' | 'work' | 'personal' | 'meeting';
@@ -22,15 +22,16 @@ interface ScheduleItem {
 function formatScheduleForClient(schedule: any): ScheduleItem {
   return {
     id: schedule.id,
+    owner_id: schedule.owner_id,
     title: schedule.title,
-    description: schedule.description,
+    description: schedule.description || '',
     date: schedule.date,
     startTime: schedule.start_time,
-    duration: schedule.duration,
-    color: schedule.color,
-    type: schedule.type,
-    remind_enabled: schedule.remind_enabled,
-    remind_minutes: schedule.remind_minutes,
+    duration: schedule.duration || 90,
+    color: schedule.color || '#3b82f6',
+    type: schedule.type || 'personal',
+    remind_enabled: schedule.remind_enabled ?? true,
+    remind_minutes: schedule.remind_minutes ?? 10,
   };
 }
 
@@ -39,8 +40,10 @@ function formatScheduleForDb(schedule: Partial<ScheduleItem>): any {
   const db: any = {
     title: schedule.title,
     date: schedule.date,
-    start_time: schedule.startTime || schedule.start_time,
+    start_time: schedule.startTime,
   };
+  
+  if (schedule.owner_id !== undefined) db.owner_id = schedule.owner_id;
   
   if (schedule.description !== undefined) db.description = schedule.description;
   if (schedule.duration !== undefined) db.duration = schedule.duration;
