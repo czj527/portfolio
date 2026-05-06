@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Github, Mail, Menu, X } from 'lucide-react'
+import { Github, Mail, Menu, X, Sun, Moon } from 'lucide-react'
 import { useAdmin } from '@/hooks/use-admin'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { useTheme } from 'next-themes'
 
 const navItems = [
   { name: '首页', path: '/' },
@@ -24,10 +24,20 @@ export default function Navigation() {
   const pathname = usePathname()
   const { isAdmin, logout } = useAdmin()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     setMenuOpen(false)
   }, [pathname])
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
 
   return (
     <motion.nav
@@ -37,12 +47,13 @@ export default function Navigation() {
       className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center space-x-2">
+        <div className="flex items-center justify-between h-14 sm:h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
             <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="text-xl font-bold"
+              className="text-lg sm:text-xl font-bold"
               style={{
                 background: 'linear-gradient(135deg, var(--primary) 0%, oklch(0.6 0.2 200) 100%)',
                 WebkitBackgroundClip: 'text',
@@ -55,6 +66,7 @@ export default function Navigation() {
             </motion.div>
           </Link>
 
+          {/* 桌面端导航 */}
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
@@ -73,6 +85,7 @@ export default function Navigation() {
             ))}
           </div>
 
+          {/* 桌面端操作区 */}
           <div className="hidden md:flex items-center space-x-2">
             {isAdmin && (
               <>
@@ -92,7 +105,17 @@ export default function Navigation() {
                 <Button variant="outline" size="sm" className="h-8 text-muted-foreground">管理</Button>
               </Link>
             )}
-            <ThemeToggle />
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-accent transition-colors"
+              aria-label="切换主题"
+            >
+              {mounted && (theme === 'dark' ? (
+                <Sun className="w-5 h-5 text-amber-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-slate-600" />
+              ))}
+            </button>
             <motion.a
               href="https://github.com/czj527"
               target="_blank"
@@ -111,23 +134,36 @@ export default function Navigation() {
             >
               <Mail className="w-5 h-5" />
             </motion.a>
+          </div>
+
+          {/* 移动端操作区：主题切换 + 菜单按钮 */}
+          <div className="flex md:hidden items-center gap-1">
+            {/* 移动端主题切换按钮 */}
+            <motion.button
+              onClick={toggleTheme}
+              whileTap={{ scale: 0.9 }}
+              className="p-2 rounded-lg hover:bg-accent transition-colors"
+              aria-label="切换主题"
+            >
+              {mounted && (theme === 'dark' ? (
+                <Sun className="w-5 h-5 text-amber-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-slate-600" />
+              ))}
+            </motion.button>
+            
+            {/* 汉堡菜单按钮 */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors"
+              className="p-2 rounded-lg hover:bg-accent transition-colors"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
-
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors"
-          >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
         </div>
       </div>
 
+      {/* 移动端菜单 */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -136,12 +172,12 @@ export default function Navigation() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden border-t border-border bg-background"
           >
-            <div className="px-4 py-4 space-y-2">
+            <div className="px-4 py-3 space-y-1">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
                   <motion.div
                     whileTap={{ scale: 0.95 }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       pathname === item.path
                         ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground hover:bg-accent'
@@ -151,15 +187,15 @@ export default function Navigation() {
                   </motion.div>
                 </Link>
               ))}
-              <hr className="border-border" />
+              <hr className="border-border my-2" />
               {isAdmin ? (
                 <>
-                  <Link href="/blog/new" className="block px-4 py-2 text-sm font-medium text-primary">✏️ 写文章</Link>
-                  <Link href="/admin" className="block px-4 py-2 text-sm font-medium text-muted-foreground">⚙️ 管理后台</Link>
-                  <button onClick={() => { logout(); setMenuOpen(false) }} className="w-full text-left px-4 py-2 text-sm font-medium text-destructive">退出管理</button>
+                  <Link href="/blog/new" className="block px-3 py-2 text-sm font-medium text-primary">✏️ 写文章</Link>
+                  <Link href="/admin" className="block px-3 py-2 text-sm font-medium text-muted-foreground">⚙️ 管理后台</Link>
+                  <button onClick={() => { logout(); setMenuOpen(false) }} className="w-full text-left px-3 py-2 text-sm font-medium text-destructive">退出管理</button>
                 </>
               ) : (
-                <Link href="/admin" className="block px-4 py-2 text-sm font-medium text-muted-foreground">🔐 管理员登录</Link>
+                <Link href="/admin" className="block px-3 py-2 text-sm font-medium text-muted-foreground">🔐 管理员登录</Link>
               )}
             </div>
           </motion.div>
