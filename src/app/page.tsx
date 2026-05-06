@@ -91,7 +91,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="flex justify-center items-center gap-1 sm:gap-2 flex-wrap">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-1.5 sm:gap-2">
             {/* 工作台 */}
             <motion.a
               href="https://work.czj527.xyz"

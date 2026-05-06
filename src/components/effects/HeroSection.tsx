@@ -137,13 +137,13 @@ function ProfileCard() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="flex md:hidden flex-col items-center gap-2 pt-20 pb-4 z-20"
+        className="flex md:hidden flex-col items-center gap-3 pt-20 pb-4 z-20"
       >
         <TiltCard />
         <div className="text-center">
           <h2 className="text-base font-bold text-primary">长岛冰茶</h2>
           <p className="text-[10px] sm:text-xs text-muted-foreground">全栈开发者 · AI 辅助开发</p>
-          <div className="flex items-center justify-center gap-x-2 gap-y-0.5 mt-1 text-[10px] text-muted-foreground/60">
+          <div className="flex flex-col items-center gap-0.5 mt-1 text-[10px] text-muted-foreground/60">
             <span className="flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" />武汉</span>
             <span className="flex items-center gap-0.5"><GraduationCap className="w-2.5 h-2.5" />大三在读</span>
           </div>
@@ -522,7 +522,7 @@ export function HeroSection() {
           <TypewriterText />
         </motion.div>
 
-        <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-12">
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12">
           <Link href="/projects">
             <motion.button
               whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
@@ -544,7 +544,7 @@ export function HeroSection() {
           </Link>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="flex justify-center gap-4 sm:gap-6">
+        <motion.div variants={itemVariants} className="flex justify-center gap-3 sm:gap-6">
           {[
             { icon: <Github className="w-5 h-5 sm:w-6 sm:h-6" />, href: 'https://github.com/czj527', label: 'GitHub' },
             { icon: <Mail className="w-5 h-5 sm:w-6 sm:h-6" />, href: 'mailto:2719398856@qq.com', label: '邮箱' },

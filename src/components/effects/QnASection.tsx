@@ -19,44 +19,7 @@ interface QnAItem {
 }
 
 // Mock data
-const MOCK_QNA: QnAItem[] = [
-  {
-    id: 1,
-    question: '你是如何学习前端的？',
-    answer: '我是通过实践项目驱动的学习方式。先掌握了HTML/CSS/JavaScript基础，然后通过模仿优秀的网站来学习布局和交互，最后深入学习React和Next.js等现代框架。',
-    author: '前端小白',
-    isHighlighted: true,
-    createdAt: '2024-03-15',
-    randomAngle: -5,
-  },
-  {
-    id: 2,
-    question: '最喜欢的技术栈是什么？',
-    answer: '我最喜欢的是 Next.js + React + TypeScript + Tailwind CSS 的组合。这个技术栈让我能够快速构建现代化的全栈应用开发。',
-    author: '技术达人',
-    isHighlighted: false,
-    createdAt: '2024-03-10',
-    randomAngle: 3,
-  },
-  {
-    id: 3,
-    question: '平时有什么爱好？',
-    answer: '除了编程，我还喜欢打篮球、听音乐和阅读技术博客。运动让我保持健康，阅读让我不断进步。',
-    author: '好奇游客',
-    isHighlighted: false,
-    createdAt: '2024-03-08',
-    randomAngle: -2,
-  },
-  {
-    id: 4,
-    question: '为什么叫长岛冰茶？',
-    answer: '长岛冰茶是一种鸡尾酒，颜色看起来像茶但酒精浓度很高，就像我的外表看起来普通但内心很有深度（自夸一下 😄）。',
-    author: '深夜诗人',
-    isHighlighted: true,
-    createdAt: '2024-03-05',
-    randomAngle: 7,
-  },
-];
+const MOCK_QNA: QnAItem[] = [];
 
 interface QnACardProps {
   item: QnAItem;
@@ -215,7 +178,7 @@ export function QnASection() {
             viewport={{ once: true }}
             className="mb-6 sm:mb-8"
           >
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 px-2">
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4 px-2">
               {highlightedItems.map(item => (
                 <motion.div
                   key={item.id}
@@ -223,7 +186,7 @@ export function QnASection() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 backdrop-blur-sm max-w-[140px] sm:max-w-xs cursor-pointer"
+                  className="p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 backdrop-blur-sm w-full sm:max-w-xs cursor-pointer"
                   onClick={() => handleToggle(item.id)}
                 >
                   <div className="text-xs text-muted-foreground mb-1.5 sm:mb-2">@{item.author}</div>
