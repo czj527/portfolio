@@ -233,37 +233,37 @@ html {
 
 /* ==================== Season Theme Variables ==================== */
 
-/* Spring Theme - Cherry Blossom Pink */
+/* Spring Theme - Pink-Green (原来太粉,改为偏绿色调) */
 .spring {
-  --primary: oklch(0.75 0.15 350);
-  --primary-foreground: oklch(0.98 0.01 350);
-  --accent: oklch(0.92 0.08 350);
-  --background: oklch(0.99 0.01 350);
+  --primary: oklch(0.65 0.16 155);  /* 粉绿色调 hue=155 */
+  --primary-foreground: oklch(0.98 0.01 155);
+  --accent: oklch(0.92 0.08 155);
+  --background: oklch(0.99 0.01 155);
 }
 
 .spring.dark {
-  --primary: oklch(0.85 0.2 350);
-  --primary-foreground: oklch(0.15 0.05 350);
-  --accent: oklch(0.25 0.05 350);
-  --background: oklch(0.12 0.02 350);
+  --primary: oklch(0.75 0.2 155);
+  --primary-foreground: oklch(0.15 0.05 155);
+  --accent: oklch(0.25 0.05 155);
+  --background: oklch(0.12 0.02 155);
 }
 
-/* Summer Theme - Sunny Orange */
+/* Summer Theme - Orange-Blue (原来纯橙,加入蓝色元素) */
 .summer {
-  --primary: oklch(0.75 0.2 70);
-  --primary-foreground: oklch(0.98 0.02 70);
-  --accent: oklch(0.92 0.12 70);
-  --background: oklch(0.99 0.01 70);
+  --primary: oklch(0.7 0.18 55);  /* 橙色主调 hue=55 */
+  --primary-foreground: oklch(0.98 0.02 55);
+  --accent: oklch(0.88 0.12 230);  /* 蓝色accent */
+  --background: oklch(0.99 0.01 55);
 }
 
 .summer.dark {
-  --primary: oklch(0.85 0.25 70);
-  --primary-foreground: oklch(0.15 0.03 70);
-  --accent: oklch(0.25 0.08 70);
-  --background: oklch(0.12 0.03 70);
+  --primary: oklch(0.8 0.22 55);
+  --primary-foreground: oklch(0.15 0.03 55);
+  --accent: oklch(0.3 0.1 230);  /* 蓝色accent */
+  --background: oklch(0.12 0.03 55);
 }
 
-/* Autumn Theme - Warm Orange */
+/* Autumn Theme - Warm Orange (不改动) */
 .autumn {
   --primary: oklch(0.7 0.18 50);
   --primary-foreground: oklch(0.98 0.02 50);
@@ -278,17 +278,17 @@ html {
   --background: oklch(0.12 0.03 50);
 }
 
-/* Winter Theme - Ice Blue */
+/* Winter Theme - Blue-White (原来偏蓝灰,改为更纯净的蓝白) */
 .winter {
-  --primary: oklch(0.7 0.15 220);
-  --primary-foreground: oklch(0.98 0.01 220);
-  --accent: oklch(0.92 0.08 220);
-  --background: oklch(0.99 0.01 220);
+  --primary: oklch(0.68 0.12 220);  /* 纯净蓝 */
+  --primary-foreground: oklch(0.98 0.005 220);
+  --accent: oklch(0.94 0.06 220);
+  --background: oklch(0.99 0.005 220);  /* 更白的背景 */
 }
 
 .winter.dark {
-  --primary: oklch(0.85 0.18 220);
-  --primary-foreground: oklch(0.15 0.05 220);
+  --primary: oklch(0.82 0.15 220);
+  --primary-foreground: oklch(0.15 0.03 220);
   --accent: oklch(0.25 0.05 220);
   --background: oklch(0.12 0.02 220);
 }
@@ -445,6 +445,7 @@ html {
 }
 
 /* ==================== Weather Theme Variables ==================== */
+/* Weather只微调背景和accent,不覆盖--primary主色!季节的primary必须始终生效 */
 
 /* Default particle speed multiplier */
 :root {
@@ -452,113 +453,64 @@ html {
   --particle-count: 1;
 }
 
-/* Sunny - Warm and bright, slight warmth boost */
+/* Sunny - Warm and bright */
 .weather-sunny {
-  /* Keep default colors but add subtle warmth */
+  /* 晴天保持季节默认 */
 }
 
 .weather-sunny.light {
-  --accent: oklch(0.94 0.04 60); /* Warmer accent */
+  --accent: oklch(0.94 0.04 60);
 }
 
 /* Cloudy - Gray-blue tones */
 .weather-cloudy {
-  --primary: oklch(0.6 0.12 240);
   --accent: oklch(0.92 0.04 220);
 }
 
 .weather-cloudy.light {
   --background: oklch(0.98 0.005 240);
-  --accent: oklch(0.9 0.04 220);
 }
 
 /* Overcast - More muted, gray tones */
 .weather-overcast {
-  --primary: oklch(0.55 0.08 240);
   --accent: oklch(0.88 0.03 220);
 }
 
 .weather-overcast.light {
   --background: oklch(0.96 0.005 240);
-  --card: oklch(0.98 0 0);
 }
 
-/* Rainy - Blue-gray tones, auto dark mode */
+/* Rainy - Blue-gray tones */
 .weather-rainy {
-  --primary: oklch(0.55 0.15 230);
   --accent: oklch(0.85 0.08 220);
 }
 
 .weather-rainy.light {
-  --primary: oklch(0.6 0.15 220);
-  --background: oklch(0.95 0.01 230);
-  --accent: oklch(0.88 0.06 220);
+  --background: oklch(0.97 0.01 230);
 }
-
-
 
 /* Thunderstorm - Purple-gray, dramatic feel */
 .weather-thunderstorm {
-  --primary: oklch(0.5 0.18 280);
   --accent: oklch(0.8 0.1 260);
 }
 
 .weather-thunderstorm.light {
-  --primary: oklch(0.55 0.18 270);
-  --background: oklch(0.93 0.015 270);
+  --background: oklch(0.96 0.015 270);
 }
-
-
 
 /* Snowy - Cool white-blue tones */
 .weather-snowy {
-  --primary: oklch(0.7 0.1 220);
   --accent: oklch(0.92 0.02 220);
 }
 
 .weather-snowy.light {
   --background: oklch(0.98 0.005 220);
-  --primary: oklch(0.65 0.12 210);
 }
-
-
 
 /* Windy - Fast particle animation */
 .weather-windy {
   --particle-speed: 1.5;
   --accent: oklch(0.9 0.05 180);
-}
-
-/* Weather + Season combinations */
-
-/* Rainy + Spring */
-.weather-rainy.spring.light {
-  --primary: oklch(0.6 0.12 180);
-}
-
-/* Rainy + Summer */
-.weather-rainy.summer.light {
-  --primary: oklch(0.6 0.12 200);
-}
-
-/* Rainy + Autumn */
-.weather-rainy.autumn.light {
-  --primary: oklch(0.6 0.12 30);
-}
-
-/* Rainy + Winter */
-.weather-rainy.winter.light {
-  --primary: oklch(0.6 0.12 220);
-}
-
-/* Thunderstorm + Spring */
-.weather-thunderstorm.spring.dark {
-  --primary: oklch(0.75 0.18 280);
-}
-
-/* Snowy + Winter - Enhanced ice effect */
-.weather-snowy.winter.dark {
-  --primary: oklch(0.85 0.08 200);
 }
 
 /* ==================== Weather Particle Animations ==================== */
@@ -606,27 +558,7 @@ html {
   z-index: 9999;
 }
 
-/* Snow drift animation */
-@keyframes snowDrift {
-  0% {
-    transform: translateY(-5vh) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.9;
-  }
-  50% {
-    transform: translateY(50vh) translateX(20px) rotate(180deg);
-  }
-  100% {
-    transform: translateY(105vh) translateX(-10px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* ==================== Weather Particle Styles ==================== */
-
-/* Snow particle animation - slower, drifting, gentle rotation */
+/* Snow dot animation - slow falling with horizontal drift */
 @keyframes snowFall {
   0% {
     transform: translateY(-10vh) translateX(0) rotate(0deg);
@@ -646,6 +578,12 @@ html {
     opacity: 0;
   }
 }
+
+.snow-dot {
+  animation: snowFall ease-in-out infinite;
+}
+
+/* ==================== Weather Particle Styles ==================== */
 
 /* Snowy weather enhancement */
 .weather-snowy .snow-particle {

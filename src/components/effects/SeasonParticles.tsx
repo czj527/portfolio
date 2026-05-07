@@ -6,10 +6,10 @@ import { useWeather, WeatherType } from '@/hooks/useWeather';
 
 // Emoji sets per season (for non-rain/snow weather)
 const SEASON_EMOJIS: Record<Season, string[]> = {
-  spring: ['🌸', '🌺', '🌷', '💮', '🦋'],
-  summer: ['☀️', '🌻', '🌊', '🐚', '🍹'],
-  autumn: ['🍂', '🍁', '🌾', '🍄', '🌰'],
-  winter: ['❄️', '🌨️', '✨', '💎', '🧊'],
+  spring: ['🌸', '🌿', '🌷', '🌱', '🦋'],   // 花、青草、小花、小树苗、蝴蝶
+  summer: ['🍦', '🌊', '🍹', '🐚', '☀️'],   // 冰淇淋、海浪、饮料、贝壳、太阳
+  autumn: ['🍂', '🍁', '🌾', '🍄', '🌰'],   // 枫叶、红叶、麦穗、蘑菇、栗子
+  winter: ['🧣', '❄️', '🌨️', '✨', '💎'],   // 围巾、雪花、雪云、星星、冰晶
 };
 
 // Fallback emojis when no weather data
@@ -30,7 +30,7 @@ const WEATHER_COUNT_MULTIPLIERS: Record<WeatherType, number> = {
   overcast: 1.2,
   rainy: 0,  // No emoji particles for rain
   thunderstorm: 0,  // No emoji particles for thunderstorm
-  snowy: 0,  // No emoji particles for snow
+  snowy: 0,  // No emoji particles for snow (except winter season)
 };
 
 // Weather animation speed multipliers
@@ -78,7 +78,7 @@ function generateRainDrops(isWindy: boolean): RainDropStyle[] {
       height: 15 + r2 * 10, // 15-25px
       opacity: 0.3 + r3 * 0.4, // 0.3-0.7
       duration: `${0.4 + r4 * 0.8}s`, // 0.4-1.2s
-      delay: `${-r1 * 1.5}s`,
+      delay: `${-r1 * 1.5}s`, // Spread out the drops
       angle,
     });
   }
@@ -86,20 +86,20 @@ function generateRainDrops(isWindy: boolean): RainDropStyle[] {
   return drops;
 }
 
-// Snow flake style interface
-interface SnowFlakeStyle {
+// Snow dot style interface (white circles, not emoji)
+interface SnowDotStyle {
   left: string;
-  fontSize: number;
-  opacity: number;
-  duration: string;
+  size: number;       // 2-4px
+  opacity: number;    // 0.4-0.8
+  duration: string;   // 5-12s
   delay: string;
   horizontalDrift: string;
 }
 
-// Generate snow flakes for snowy weather
-function generateSnowFlakes(): SnowFlakeStyle[] {
-  const count = 40;
-  const flakes: SnowFlakeStyle[] = [];
+// Generate white snow dots for snowy weather
+function generateSnowDots(): SnowDotStyle[] {
+  const count = 60;
+  const dots: SnowDotStyle[] = [];
   
   for (let i = 0; i < count; i++) {
     const r1 = seededRandom(i * 5 + 0);
@@ -108,17 +108,17 @@ function generateSnowFlakes(): SnowFlakeStyle[] {
     const r4 = seededRandom(i * 5 + 3);
     const r5 = seededRandom(i * 5 + 4);
     
-    flakes.push({
+    dots.push({
       left: `${r1 * 100}%`,
-      fontSize: 12 + r2 * 8, // 12-20px
-      opacity: 0.5 + r3 * 0.4, // 0.5-0.9
-      duration: `${8 + r4 * 8}s`, // 8-16s (slow falling)
-      delay: `${-r1 * 16}s`,
+      size: 2 + r2 * 2, // 2-4px
+      opacity: 0.4 + r3 * 0.4, // 0.4-0.8
+      duration: `${5 + r4 * 7}s`, // 5-12s (slow falling)
+      delay: `${-r1 * 12}s`,
       horizontalDrift: `${r5 * 40 - 20}px`, // -20px to 20px
     });
   }
   
-  return flakes;
+  return dots;
 }
 
 // Emoji particle style interface
@@ -252,35 +252,54 @@ export function SeasonParticles() {
   // Use currentSeason from store (set by ThemeProvider)
   const season = currentSeason;
   
+  // When weatherEffects is disabled, effectiveWeather is null
+  // This means no rain/snow/lightning effects, but season particles still show
+  const effectiveWeather = settings.weatherEffects ? weather : null;
+  const effectiveWeatherType = effectiveWeather?.weatherType;
+  
   // Determine if we should show lightning
-  const showLightning = weather?.weatherType === 'thunderstorm';
-  const isWindy = weather?.isWindy ?? false;
+  const showLightning = effectiveWeatherType === 'thunderstorm';
+  const isWindy = effectiveWeather?.isWindy ?? false;
+  
+  // Is it a snowy weather condition?
+  const isSnowyWeather = effectiveWeatherType === 'snowy';
 
   // Generate rain drops for rainy/thunderstorm weather
   const rainDrops = useMemo(() => {
-    if (weather?.weatherType !== 'rainy' && weather?.weatherType !== 'thunderstorm') {
+    if (effectiveWeatherType !== 'rainy' && effectiveWeatherType !== 'thunderstorm') {
       return [];
     }
     return generateRainDrops(isWindy);
-  }, [weather?.weatherType, isWindy]);
+  }, [effectiveWeatherType, isWindy]);
 
-  // Generate snow flakes for snowy weather
-  const snowFlakes = useMemo(() => {
-    if (weather?.weatherType !== 'snowy') {
+  // Generate white snow dots for snowy weather
+  const snowDots = useMemo(() => {
+    if (!isSnowyWeather) {
       return [];
     }
-    return generateSnowFlakes();
-  }, [weather?.weatherType]);
+    return generateSnowDots();
+  }, [isSnowyWeather]);
 
-  // Generate emoji particles for other weather
+  // Generate emoji particles for season or other weather
+  // Rules:
+  // - If it's rainy/thunderstorm: no emoji particles
+  // - If it's snowy AND not winter: no emoji particles (just white dots)
+  // - If it's snowy AND is winter: show winter emoji particles + white dots
+  // - Otherwise: show season emoji particles
   const emojiParticles = useMemo(() => {
-    if (weather?.weatherType === 'rainy' || 
-        weather?.weatherType === 'thunderstorm' || 
-        weather?.weatherType === 'snowy') {
+    // No emoji particles for rain/thunderstorm
+    if (effectiveWeatherType === 'rainy' || effectiveWeatherType === 'thunderstorm') {
       return [];
     }
-    return generateParticles(season, weather?.weatherType, isWindy);
-  }, [season, weather?.weatherType, isWindy]);
+    
+    // Snowy weather without winter season: no emoji particles
+    if (effectiveWeatherType === 'snowy' && season !== 'winter') {
+      return [];
+    }
+    
+    // For snowy + winter, or any other weather, show season emoji particles
+    return generateParticles(season, effectiveWeatherType, isWindy);
+  }, [season, effectiveWeatherType, isWindy]);
 
   // Don't render on SSR, or if particles disabled, or user explicitly chose light mode
   if (!mounted || !settings.particleEffects || settings.themeMode === 'light') {
@@ -311,28 +330,27 @@ export function SeasonParticles() {
         />
       ))}
 
-      {/* Snow flakes - emoji with slow drift */}
-      {snowFlakes.map((flake, i) => (
-        <span
-          key={`snow-${i}`}
-          className="absolute top-0 snow-particle"
+      {/* White snow dots - small circles falling slowly */}
+      {snowDots.map((dot, i) => (
+        <div
+          key={`snowdot-${i}`}
+          className="absolute top-0 rounded-full bg-white snow-dot"
           style={{
-            left: flake.left,
-            fontSize: `${flake.fontSize}px`,
-            opacity: flake.opacity,
-            animationDuration: flake.duration,
-            animationDelay: flake.delay,
-            '--sp-drift': flake.horizontalDrift,
+            left: dot.left,
+            width: `${dot.size}px`,
+            height: `${dot.size}px`,
+            opacity: dot.opacity,
+            animationDuration: dot.duration,
+            animationDelay: dot.delay,
+            '--sp-drift': dot.horizontalDrift,
           } as React.CSSProperties}
-        >
-          ❄️
-        </span>
+        />
       ))}
 
       {/* Emoji particles for season/other weather */}
       {emojiParticles.map((p, i) => (
         <span
-          key={`emoji-${season}-${weather?.weatherType || 'default'}-${i}`}
+          key={`emoji-${season}-${effectiveWeatherType || 'default'}-${i}`}
           className="absolute top-0 season-particle"
           style={{
             left: p.left,
