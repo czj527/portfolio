@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Github, Mail, ChevronDown, MapPin, GraduationCap } from 'lucide-react';
 import { useAppStore } from '@/store';
+import { useWeather } from '@/hooks/useWeather';
 
 // ==================== Typewriter Effect ====================
 const phrases = [
@@ -233,12 +234,55 @@ const statusDetails: Record<string, { moods: string[]; tags: string[] }> = {
   },
 };
 
+// ==================== Weather Moods ====================
+const weatherMoods: Record<string, string[]> = {
+  sunny: [
+    '阳光正好，适合写代码',
+    '窗外的阳光让人心情不错',
+    '天气超棒，但还是要打工',
+    '阳光明媚，bug都绕着走',
+  ],
+  cloudy: [
+    '多云天，适合沉浸式编码',
+    '云层挡住了阳光，但挡不住我的热情',
+    '多云转晴，代码也会晴',
+  ],
+  overcast: [
+    '阴天摸鱼，正合适',
+    '天色阴沉，但代码很亮',
+    '阴天最适合窝着写代码了',
+  ],
+  rainy: [
+    '下雨天和敲键盘更配哦',
+    '窗外在下雨，屋里在冒烟（指CPU）',
+    '雨声是最好的白噪音',
+    '雨天代码写得更专注',
+  ],
+  thunderstorm: [
+    '打雷了，赶紧保存代码',
+    '雷暴天，希望不会断电',
+    '这天气，还是别出门了',
+    '听着雷声写代码，别有一番风味',
+  ],
+  snowy: [
+    '下雪了，代码也要雪花般的优雅',
+    '雪天窝在室内写代码很舒服',
+    '窗外飘雪，屋里写码',
+  ],
+  windy: [
+    '外面风好大，还好我在室内',
+    '风把bug都吹走了（并没有）',
+    '大风天，键盘敲得更起劲',
+  ],
+};
+
 function getNow(): { hour: number; minute: number; totalMin: number } {
   const now = new Date();
   return { hour: now.getHours(), minute: now.getMinutes(), totalMin: now.getHours() * 60 + now.getMinutes() };
 }
 
 function LiveStatus() {
+  const { weather } = useWeather();
   const [status, setStatus] = useState<{
     main: string;
     emoji: string;
@@ -251,6 +295,21 @@ function LiveStatus() {
   useEffect(() => {
     function pickRandom<T>(arr: T[]): T {
       return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function getWeatherMood(): string {
+      if (!weather) return '';
+      const weatherType = weather.weatherType;
+      const moods = weatherMoods[weatherType] || weatherMoods.cloudy;
+      let mood = pickRandom(moods);
+      // Add wind variation if windy
+      if (weather.isWindy && Math.random() > 0.5) {
+        const windMoods = weatherMoods.windy || [];
+        if (windMoods.length > 0) {
+          mood = pickRandom(windMoods);
+        }
+      }
+      return mood;
     }
 
     async function fetchStatus() {
@@ -280,11 +339,15 @@ function LiveStatus() {
 
             const detail = statusDetails[key];
             const percent = Math.round(((totalMin - startMin) / s.duration) * 100);
+            const weatherMood = getWeatherMood();
+            const baseMood = pickRandom(detail.moods);
+            // 50% chance to use weather mood
+            const finalMood = weatherMood && Math.random() > 0.5 ? weatherMood : baseMood;
 
             setStatus({
               main: s.title,
               emoji: emojiMap[s.type] || '✨',
-              mood: pickRandom(detail.moods),
+              mood: finalMood,
               tags: detail.tags.slice(0, 2),
               subtext: `${s.startTime} - ${endTime}`,
               progress: { label: '进度', percent: Math.min(percent, 100) },
@@ -317,10 +380,14 @@ function LiveStatus() {
         if (hour >= 23 || hour < 6) key = 'sleeping';
         else if (hour < 9) key = 'morning';
         const detail = statusDetails[key];
+        const weatherMood = getWeatherMood();
+        const baseMood = pickRandom(detail.moods);
+        // 60% chance to use weather mood when free
+        const finalMood = weatherMood && Math.random() > 0.4 ? weatherMood : baseMood;
         setStatus({
           main: key === 'sleeping' ? '休息中' : key === 'morning' ? '早安' : '自由时间',
           emoji: key === 'sleeping' ? '😴' : key === 'morning' ? '🌅' : '🎉',
-          mood: pickRandom(detail.moods),
+          mood: finalMood,
           tags: detail.tags.slice(0, 2),
         });
       } catch {
@@ -367,6 +434,16 @@ function LiveStatus() {
                 transition={{ duration: 1, ease: 'easeOut' }}
               />
             </div>
+          </div>
+        )}
+
+        {/* 时间 */}
+        {/* 天气信息 */}
+        {weather && (
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground/70 mt-2">
+            <span>{weather.icon} {weather.temp}°C</span>
+            <span>{weather.description}</span>
+            {weather.isWindy && <span>💨 大风</span>}
           </div>
         )}
 

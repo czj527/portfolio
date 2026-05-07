@@ -443,3 +443,246 @@ html {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
+
+/* ==================== Weather Theme Variables ==================== */
+
+/* Default particle speed multiplier */
+:root {
+  --particle-speed: 1;
+  --particle-count: 1;
+}
+
+/* Sunny - Warm and bright, slight warmth boost */
+.weather-sunny {
+  /* Keep default colors but add subtle warmth */
+}
+
+.weather-sunny.light {
+  --accent: oklch(0.94 0.04 60); /* Warmer accent */
+}
+
+/* Cloudy - Gray-blue tones */
+.weather-cloudy {
+  --primary: oklch(0.6 0.12 240);
+  --accent: oklch(0.92 0.04 220);
+}
+
+.weather-cloudy.light {
+  --background: oklch(0.98 0.005 240);
+  --accent: oklch(0.9 0.04 220);
+}
+
+/* Overcast - More muted, gray tones */
+.weather-overcast {
+  --primary: oklch(0.55 0.08 240);
+  --accent: oklch(0.88 0.03 220);
+}
+
+.weather-overcast.light {
+  --background: oklch(0.96 0.005 240);
+  --card: oklch(0.98 0 0);
+}
+
+/* Rainy - Blue-gray tones, auto dark mode */
+.weather-rainy {
+  --primary: oklch(0.55 0.15 230);
+  --accent: oklch(0.85 0.08 220);
+}
+
+.weather-rainy.light {
+  --primary: oklch(0.6 0.15 220);
+  --background: oklch(0.95 0.01 230);
+  --accent: oklch(0.88 0.06 220);
+}
+
+.weather-rainy.dark {
+  --primary: oklch(0.7 0.12 230);
+  --background: oklch(0.1 0.02 230);
+  --card: oklch(0.15 0.02 230);
+}
+
+/* Thunderstorm - Purple-gray, dramatic feel */
+.weather-thunderstorm {
+  --primary: oklch(0.5 0.18 280);
+  --accent: oklch(0.8 0.1 260);
+}
+
+.weather-thunderstorm.light {
+  --primary: oklch(0.55 0.18 270);
+  --background: oklch(0.93 0.015 270);
+}
+
+.weather-thunderstorm.dark {
+  --primary: oklch(0.65 0.15 280);
+  --background: oklch(0.08 0.03 280);
+  --card: oklch(0.12 0.03 280);
+}
+
+/* Snowy - Cool white-blue tones */
+.weather-snowy {
+  --primary: oklch(0.7 0.1 220);
+  --accent: oklch(0.92 0.02 220);
+}
+
+.weather-snowy.light {
+  --background: oklch(0.98 0.005 220);
+  --primary: oklch(0.65 0.12 210);
+}
+
+.weather-snowy.dark {
+  --primary: oklch(0.8 0.08 220);
+  --background: oklch(0.12 0.015 220);
+}
+
+/* Windy - Fast particle animation */
+.weather-windy {
+  --particle-speed: 1.5;
+  --accent: oklch(0.9 0.05 180);
+}
+
+/* Weather + Season combinations */
+
+/* Rainy + Spring */
+.weather-rainy.spring.light {
+  --primary: oklch(0.6 0.12 180);
+}
+
+/* Rainy + Summer */
+.weather-rainy.summer.light {
+  --primary: oklch(0.6 0.12 200);
+}
+
+/* Rainy + Autumn */
+.weather-rainy.autumn.light {
+  --primary: oklch(0.6 0.12 30);
+}
+
+/* Rainy + Winter */
+.weather-rainy.winter.light {
+  --primary: oklch(0.6 0.12 220);
+}
+
+/* Thunderstorm + Spring */
+.weather-thunderstorm.spring.dark {
+  --primary: oklch(0.75 0.18 280);
+}
+
+/* Snowy + Winter - Enhanced ice effect */
+.weather-snowy.winter.dark {
+  --primary: oklch(0.85 0.08 200);
+}
+
+/* ==================== Weather Particle Animations ==================== */
+
+/* Rain drops animation (applied via JS) */
+@keyframes rainDrop {
+  0% {
+    transform: translateY(-10vh) rotate(15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(110vh) rotate(15deg);
+    opacity: 0;
+  }
+}
+
+/* Lightning flash for thunderstorm */
+@keyframes lightning {
+  0%, 90%, 100% {
+    opacity: 0;
+  }
+  92%, 94%, 96% {
+    opacity: 0.3;
+  }
+  93%, 95% {
+    opacity: 0;
+  }
+}
+
+.weather-thunderstorm::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: white;
+  pointer-events: none;
+  animation: lightning 8s infinite;
+  z-index: 9999;
+}
+
+/* Snow drift animation */
+@keyframes snowDrift {
+  0% {
+    transform: translateY(-5vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(50vh) translateX(20px) rotate(180deg);
+  }
+  100% {
+    transform: translateY(105vh) translateX(-10px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ==================== Weather Particle Styles ==================== */
+
+/* Rain particle animation - faster, linear, with horizontal drift */
+@keyframes rainFall {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(110vh) translateX(var(--sp-drift, 20px)) rotate(15deg);
+    opacity: 0.3;
+  }
+}
+
+/* Snow particle animation - slower, drifting, gentle rotation */
+@keyframes snowFall {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(50vh) translateX(calc(var(--sp-drift, 10px) + 20px)) rotate(180deg);
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(110vh) translateX(calc(var(--sp-drift, 10px) - 10px)) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Thunderstorm lightning enhancement */
+.weather-thunderstorm .rain-particle {
+  animation-name: rainFall;
+  animation-timing-function: linear;
+}
+
+/* Snowy weather enhancement */
+.weather-snowy .snow-particle {
+  animation-name: snowFall;
+  animation-timing-function: ease-in-out;
+}
+
+/* Apply horizontal drift from CSS variable */
+.season-particle,
+.rain-particle,
+.snow-particle {
+  transform: translateX(var(--sp-drift, 0));
+}

@@ -3,19 +3,21 @@
 import { useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useAppStore, ThemeMode } from '@/store';
 import { SeasonParticles } from '@/components/effects/SeasonParticles';
+import { useWeather, WeatherType } from '@/hooks/useWeather';
 
 type SeasonClass = 'spring' | 'summer' | 'autumn' | 'winter';
 type BrightnessClass = 'light' | 'dark';
 
 const ALL_SEASON_CLASSES: SeasonClass[] = ['spring', 'summer', 'autumn', 'winter'];
 const ALL_BRIGHTNESS_CLASSES: BrightnessClass[] = ['light', 'dark'];
+const ALL_WEATHER_CLASSES: string[] = ['weather-sunny', 'weather-cloudy', 'weather-overcast', 'weather-rainy', 'weather-thunderstorm', 'weather-snowy', 'weather-windy'];
 
 function getCurrentSeason(): SeasonClass {
   if (typeof window === 'undefined') return 'spring';
   const month = new Date().getMonth() + 1;
-  if (month >= 1 && month <= 3) return 'spring';
-  if (month >= 4 && month <= 6) return 'summer';
-  if (month >= 7 && month <= 9) return 'autumn';
+  if (month >= 1 && month < 4) return 'spring';
+  if (month >= 4 && month < 7) return 'summer';
+  if (month >= 7 && month < 10) return 'autumn';
   return 'winter';
 }
 
@@ -29,46 +31,82 @@ function getTimeBasedTheme(): ResolvedTheme {
   const hour = new Date().getHours();
   const season = getCurrentSeason();
 
-  // 早晨 6-9: 季节亮色
+  // Morning 6-9: Season light
   if (hour >= 6 && hour < 9) {
     return { season, brightness: 'light' };
   }
 
-  // 上午 9-12: 季节亮色
+  // Late morning 9-12: Season light
   if (hour >= 9 && hour < 12) {
     return { season, brightness: 'light' };
   }
 
-  // 中午 12-14: 季节亮色偏暖
+  // Noon 12-14: Season light warm
   if (hour >= 12 && hour < 14) {
     return { season, brightness: 'light' };
   }
 
-  // 下午 14-17: 季节亮色
+  // Afternoon 14-17: Season light
   if (hour >= 14 && hour < 17) {
     return { season, brightness: 'light' };
   }
 
-  // 傍晚 17-19: 季节暗色，过渡
+  // Evening 17-19: Season dark transition
   if (hour >= 17 && hour < 19) {
     return { season, brightness: 'dark' };
   }
 
-  // 夜间 19-6: 季节暗色
+  // Night 19-6: Season dark
   return { season, brightness: 'dark' };
 }
 
-function applyTheme(resolved: ResolvedTheme) {
+// Weather-influenced brightness adjustment
+function adjustBrightnessForWeather(brightness: BrightnessClass, weatherType?: WeatherType): BrightnessClass {
+  // Rainy and thunderstorm automatically use dark theme
+  if (weatherType === 'rainy' || weatherType === 'thunderstorm') {
+    return 'dark';
+  }
+  // Overcast can slightly darken the theme
+  if (weatherType === 'overcast' && brightness === 'light') {
+    return 'light'; // Keep light but CSS will adjust colors
+  }
+  return brightness;
+}
+
+function applyTheme(
+  resolved: ResolvedTheme,
+  weatherType?: WeatherType,
+  isWindy?: boolean
+) {
   const root = document.documentElement;
+  
+  // Remove old season classes
   ALL_SEASON_CLASSES.forEach((cls) => root.classList.remove(cls));
+  // Remove old brightness classes
   ALL_BRIGHTNESS_CLASSES.forEach((cls) => root.classList.remove(cls));
+  // Remove old weather classes
+  ALL_WEATHER_CLASSES.forEach((cls) => root.classList.remove(cls));
+  
+  // Add new classes
   root.classList.add(resolved.season);
   root.classList.add(resolved.brightness);
+  
+  // Add weather class if available
+  if (weatherType) {
+    root.classList.add(`weather-${weatherType}`);
+  }
+  if (isWindy) {
+    root.classList.add('weather-windy');
+  }
+  
+  // Set data attributes for CSS selection
   root.setAttribute('data-theme', `${resolved.season}-${resolved.brightness}`);
+  root.setAttribute('data-weather', weatherType || 'unknown');
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const settings = useAppStore((state) => state.settings);
+  const { weather } = useWeather();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateTheme = useCallback(() => {
@@ -95,19 +133,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         break;
       case 'realtime':
         resolved = getTimeBasedTheme();
+        // Apply weather influence in realtime mode
+        if (weather) {
+          resolved.brightness = adjustBrightnessForWeather(resolved.brightness, weather.weatherType);
+        }
         break;
       default:
         resolved = getTimeBasedTheme();
     }
 
-    applyTheme(resolved);
+    // Apply theme with weather info
+    applyTheme(
+      resolved,
+      weather?.weatherType,
+      weather?.isWindy
+    );
 
-    // 同步更新 store，供 SeasonParticles 等组件使用
+    // Sync store for other components
     useAppStore.setState({
       currentTheme: resolved.brightness === 'dark' ? 'dark' : resolved.season,
       currentSeason: resolved.season,
     });
-  }, [settings.themeMode]);
+  }, [settings.themeMode, weather]);
 
   useEffect(() => {
     updateTheme();
