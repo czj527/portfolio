@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
   outputFileTracingExcludes: {
     '*': ['**/blog-site/**'],
   },
-  turbopack: {},
 };
 
 export default nextConfig;
