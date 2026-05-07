@@ -495,11 +495,7 @@ html {
   --accent: oklch(0.88 0.06 220);
 }
 
-.weather-rainy.dark {
-  --primary: oklch(0.7 0.12 230);
-  --background: oklch(0.1 0.02 230);
-  --card: oklch(0.15 0.02 230);
-}
+
 
 /* Thunderstorm - Purple-gray, dramatic feel */
 .weather-thunderstorm {
@@ -512,11 +508,7 @@ html {
   --background: oklch(0.93 0.015 270);
 }
 
-.weather-thunderstorm.dark {
-  --primary: oklch(0.65 0.15 280);
-  --background: oklch(0.08 0.03 280);
-  --card: oklch(0.12 0.03 280);
-}
+
 
 /* Snowy - Cool white-blue tones */
 .weather-snowy {
@@ -529,10 +521,7 @@ html {
   --primary: oklch(0.65 0.12 210);
 }
 
-.weather-snowy.dark {
-  --primary: oklch(0.8 0.08 220);
-  --background: oklch(0.12 0.015 220);
-}
+
 
 /* Windy - Fast particle animation */
 .weather-windy {
@@ -574,19 +563,24 @@ html {
 
 /* ==================== Weather Particle Animations ==================== */
 
-/* Rain drops animation (applied via JS) */
-@keyframes rainDrop {
+/* Rain drops - CSS gradient lines falling from top */
+@keyframes rainFall {
   0% {
-    transform: translateY(-10vh) rotate(15deg);
+    transform: translateY(-10vh) rotate(var(--rain-angle, 0deg));
     opacity: 0;
   }
   10% {
     opacity: 0.8;
   }
   100% {
-    transform: translateY(110vh) rotate(15deg);
+    transform: translateY(110vh) rotate(var(--rain-angle, 0deg));
     opacity: 0;
   }
+}
+
+.rain-drop {
+  background: linear-gradient(to bottom, transparent, rgba(150, 200, 255, 0.7));
+  animation: rainFall linear infinite;
 }
 
 /* Lightning flash for thunderstorm */
@@ -632,21 +626,6 @@ html {
 
 /* ==================== Weather Particle Styles ==================== */
 
-/* Rain particle animation - faster, linear, with horizontal drift */
-@keyframes rainFall {
-  0% {
-    transform: translateY(-10vh) translateX(0) rotate(15deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(110vh) translateX(var(--sp-drift, 20px)) rotate(15deg);
-    opacity: 0.3;
-  }
-}
-
 /* Snow particle animation - slower, drifting, gentle rotation */
 @keyframes snowFall {
   0% {
@@ -668,12 +647,6 @@ html {
   }
 }
 
-/* Thunderstorm lightning enhancement */
-.weather-thunderstorm .rain-particle {
-  animation-name: rainFall;
-  animation-timing-function: linear;
-}
-
 /* Snowy weather enhancement */
 .weather-snowy .snow-particle {
   animation-name: snowFall;
@@ -682,7 +655,6 @@ html {
 
 /* Apply horizontal drift from CSS variable */
 .season-particle,
-.rain-particle,
 .snow-particle {
   transform: translateX(var(--sp-drift, 0));
 }

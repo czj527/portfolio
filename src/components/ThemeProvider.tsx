@@ -60,19 +60,6 @@ function getTimeBasedTheme(): ResolvedTheme {
   return { season, brightness: 'dark' };
 }
 
-// Weather-influenced brightness adjustment
-function adjustBrightnessForWeather(brightness: BrightnessClass, weatherType?: WeatherType): BrightnessClass {
-  // Rainy and thunderstorm automatically use dark theme
-  if (weatherType === 'rainy' || weatherType === 'thunderstorm') {
-    return 'dark';
-  }
-  // Overcast can slightly darken the theme
-  if (weatherType === 'overcast' && brightness === 'light') {
-    return 'light'; // Keep light but CSS will adjust colors
-  }
-  return brightness;
-}
-
 function applyTheme(
   resolved: ResolvedTheme,
   weatherType?: WeatherType,
@@ -133,10 +120,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         break;
       case 'realtime':
         resolved = getTimeBasedTheme();
-        // Apply weather influence in realtime mode
-        if (weather) {
-          resolved.brightness = adjustBrightnessForWeather(resolved.brightness, weather.weatherType);
-        }
         break;
       default:
         resolved = getTimeBasedTheme();
