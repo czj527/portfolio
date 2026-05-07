@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-export type BlogVersion = "beginner" | "intermediate" | "advanced";
+export type BlogVersion = "beginner" | "intermediate";
 
 interface VersionOption {
   key: BlogVersion;
@@ -24,12 +24,6 @@ const VERSIONS: VersionOption[] = [
     label: "基础版",
     emoji: "⚡",
     desc: "面向有 Python 基础的开发者，保持教学节奏",
-  },
-  {
-    key: "advanced",
-    label: "进阶版",
-    emoji: "🚀",
-    desc: "面向有丰富经验的工程师，聚焦架构与生产部署",
   },
 ];
 
@@ -54,7 +48,7 @@ export function BlogVersionSelector({
     <div className="w-full mb-8">
       {/* 版本切换说明 */}
       <div className="text-sm text-muted-foreground mb-4 text-center">
-        这篇教程提供三个难度版本，点击切换阅读：
+        这篇教程提供两个难度版本，点击切换阅读：
       </div>
 
       {/* 切换器主体 */}

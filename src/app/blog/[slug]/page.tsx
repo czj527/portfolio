@@ -44,7 +44,7 @@ const MULTI_VERSION_SLUGS = ['streamlit-ai-companion'];
 const LOCAL_POSTS_MAP: Record<string, { title: string; excerpt: string; tags: string[] }> = {
   'streamlit-ai-companion': {
     title: '用 Streamlit 快速搭建一个 AI 智能伴侣项目',
-    excerpt: '基于 Streamlit + DeepSeek v4-flash，从零构建一个完整的 AI 对话应用，支持多轮对话、流式输出，提供三个难度版本。',
+    excerpt: '基于 Streamlit + DeepSeek v4-flash，从零构建一个完整的 AI 对话应用，支持多轮对话、流式输出，提供两个难度版本。',
     tags: ['Streamlit', 'DeepSeek', 'Python', 'AI'],
   },
 };
@@ -232,9 +232,9 @@ function BlogDetailContent() {
             >
               <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium mb-1">📖 这篇教程提供三个难度版本</p>
+                <p className="font-medium mb-1">📖 这篇教程提供两个难度版本</p>
                 <p className="text-muted-foreground">
-                  选择适合你的版本阅读：零基础版（每行代码都解释）、基础版（保持教学节奏）、进阶版（聚焦架构与生产部署）。
+                  选择适合你的版本阅读：零基础版（每行代码都解释）、基础版（保持教学节奏）。
                 </p>
               </div>
             </motion.div>

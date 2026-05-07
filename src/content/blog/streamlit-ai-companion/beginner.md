@@ -126,274 +126,237 @@ streamlit --version
 ### 3.2 页面配置（必须放在第一行）
 
 ```python
-# 导入 streamlit 库，简写为 st，方便后续使用
+# ============================================================
+# 第 1 步：导入 Streamlit 库
+# ============================================================
+# import 是 Python 的"导入"命令，意思是"我要使用这个工具"
+# as st 的意思是"给它起个小名，叫 st"，这样后面写起来更方便
 import streamlit as st
+from openai import OpenAI  # 导入 OpenAI 库，用来调用 AI 模型
 
-# 设置页面的基本信息
+# ============================================================
+# 第 2 步：设置页面基本信息
+# ============================================================
+# st.set_page_config() 是 Streamlit 的"页面配置"函数
+# 必须放在整个脚本的最最前面！
+# 参数说明：
+#   - page_title：浏览器标签页上显示的标题（就像网页的名字）
+#   - page_icon：浏览器标签页上的小图标，可以用表情 😄
+#   - layout：页面布局，"centered"表示内容居中显示
 st.set_page_config(
     page_title="我的 AI 伴侣",      # 浏览器标签页上显示的标题
     page_icon="🤖",                 # 浏览器标签页上的小图标
     layout="centered"               # 页面布局："centered"(居中) 或 "wide"(全宽)
 )
-```
 
-#### 这里发生了什么？
+# ============================================================
+# 第 3 步：设置 AI 的"角色设定"
+# ============================================================
+# system_prompt 就是给 AI 定义一个"人设"
+# 告诉 AI："你是一个什么样的人，应该怎么说话"
+# """ 三个引号之间可以写多行文字 """
+system_prompt = """你是一个友善、热情的 AI 助手。
+你的风格：
+1. 用轻松友好的语气和用户聊天
+2. 回答问题耐心详细，不懂就诚实说
+3. 偶尔可以开玩笑，让对话更有趣"""
 
-- `import streamlit as st`：告诉 Python"我要使用 Streamlit 这个工具"，并给它起个简短的名字 `st`
-- `st.set_page_config()`：这是 Streamlit 的**页面配置函数**，必须放在脚本最前面
-  - `page_title`：网页标签页上显示的文字
-  - `page_icon`：网页标签页上显示的表情或图标
-  - `layout`：决定页面内容的宽度
-
-### 3.3 页面标题 + 输入框
-
-```python
-# 在页面上显示一个一级大标题
-st.title("🤖 我的 AI 伴侣")
-
-# 在标题下方显示一行提示文字
-st.markdown("—— 基于 DeepSeek v4-flash 构建的智能对话助手")
-
-# 创建一个文本输入框，供用户输入问题
-# user_input 是用户输入的内容
-user_input = st.text_input(
-    label="请输入你的问题：",       # 输入框前的标签文字
-    placeholder="比如：今天天气怎么样？",  # 空时显示的占位文字
-)
-```
-
-#### 这里发生了什么？
-
-- `st.title()`：显示页面主标题
-- `st.markdown()`：显示带格式的文字（Markdown 格式）
-- `st.text_input()`：创建一个输入框，**用户输入的内容会保存在 `user_input` 变量里**
-
-### 3.4 调用大模型——让 AI 真正"思考"
-
-#### 3.4.1 设置 API Key
-
-**API Key** 是什么？
-
-> API Key 就像是一张"身份证"——当你使用 DeepSeek 的服务时，需要用 API Key 来证明"我是一个合法用户"。每个用户都有自己独特的 Key，不能和别人共用。
-
-DeepSeek API Key 的获取方式：
-1. 访问 https://platform.deepseek.com/
-2. 注册并登录账号
-3. 在控制台找到"API Keys"，点击创建
-4. 复制生成的 Key（以 `sk-` 开头）
-
-> **重要提醒**：API Key 非常重要，就像你的账号密码一样！不要分享给他人，不要直接写在代码里（生产环境应该用环境变量）。
-
-```python
-# 从环境变量读取 API Key
-import os
-
-# 这里填入你的 DeepSeek API Key（开发测试用）
-# 格式：os.getenv("DEEPSEEK_API_KEY", "你的Key")
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "sk-xxxxxxxxxxxxxxxx")
-```
-
-#### 3.4.2 创建 AI 客户端
-
-```python
-from openai import OpenAI
-
-# 创建一个客户端，用于和 DeepSeek 通信
-# DeepSeek 的 API 兼容 OpenAI 格式，所以可以直接用 OpenAI 客户端
-client = OpenAI(
-    api_key=DEEPSEEK_API_KEY,                          # 填入你的 API Key
-    base_url="https://api.deepseek.com"                # DeepSeek 的 API 地址
-)
-```
-
-#### 3.4.3 设置系统提示词（System Prompt）
-
-**System Prompt** 是什么？
-
-> System Prompt 就像是给 AI 设定一个"角色"或"行为准则"。你可以告诉 AI："你是一个乐于助人的助手"、"你是一个幽默的朋友"等等。
-
-```python
-# 定义 AI 的角色设定
-SYSTEM_PROMPT = """你是一个友善、热情的 AI 助手。
-你的目标是：
-1. 准确回答用户的问题
-2. 用简单易懂的语言解释复杂概念
-3. 如果不确定，就诚实告诉用户
-"""
-```
-
-#### 3.4.4 发送请求并获取回复
-
-```python
-# 当用户点击按钮或按下回车时，发送请求
-if user_input:
-    # 显示一个"思考中"的气泡，模拟打字效果
-    with st.spinner("🤔 AI 正在思考中..."):
-        response = client.chat.completions.create(
-            model="deepseek-chat",          # 使用 DeepSeek 的对话模型
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},  # 系统设定
-                {"role": "user", "content": user_input},       # 用户的问题
-            ],
-            max_tokens=1000,                # 回复最大字数（token 是文字的计量单位）
-            temperature=0.7,               # 创造性程度：0~1，越高越有创意
-        )
-    
-    # 从回复中提取 AI 的回答
-    answer = response.choices[0].message.content
-    st.chat_message("assistant").write(answer)
-```
-
-### 3.5 会话状态管理——让 AI"记住"对话
-
-#### 什么是会话状态？
-
-> 想象一下：你和朋友聊天，朋友需要记住你们之前聊过的内容，才能继续对话。`st.session_state` 就是 Streamlit 用来"记住"对话内容的工具。
-
-```python
-# 初始化会话状态（如果还没有这个列表，就创建一个空列表）
-# st.session_state 就像一个小盒子，专门用来存放我们需要"记住"的东西
+# ============================================================
+# 第 4 步：初始化"会话状态"（让 AI 能记住对话）
+# ============================================================
+# st.session_state 是 Streamlit 提供的"记忆盒子"
+# 我们用它来保存对话历史，这样刷新页面也不会丢失
+# if "messages" not in st.session_state 的意思是：
+#   "如果记忆盒子里还没有'messages'，就创建一个空盒子"
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = []  # 创建了一个空列表，用来存放对话记录
 
-# 在页面上显示所有历史对话
+# ============================================================
+# 第 5 步：显示页面标题
+# ============================================================
+# st.title() 在页面上显示一个大标题
+# st.markdown() 显示带格式的文字（支持 Markdown 语法）
+# st.divider() 画一条分隔线，让页面更美观
+st.title("🤖 我的 AI 伴侣")
+st.markdown("—— 基于 DeepSeek v4-flash 构建的智能对话助手")
+st.divider()
+
+# ============================================================
+# 第 6 步：显示历史对话
+# ============================================================
+# for message in st.session_state.messages 的意思是：
+#   "遍历记忆盒子里的每一条消息"
+# for 是"循环"，in 是"在...里面"
 for message in st.session_state.messages:
-    # 根据消息的"角色"（是用户还是AI）决定显示在哪一边
+    # st.chat_message() 会创建一个聊天气泡
+    # "user" 表示用户的消息（显示在右边）
+    # "assistant" 表示 AI 的消息（显示在左边）
     with st.chat_message(message["role"]):
+        # st.markdown() 显示消息内容
         st.markdown(message["content"])
 
-# 把用户刚才输入的内容，添加到对话历史中
+# ============================================================
+# 第 7 步：获取用户输入
+# ============================================================
+# st.chat_input() 创建一个聊天输入框
+# 用户输入的内容会保存到 user_input 变量里
+# placeholder 是输入框为空时显示的提示文字
+user_input = st.chat_input(placeholder="请输入你的问题...")
+
+# ============================================================
+# 第 8 步：如果用户输入了内容，就处理对话
+# ============================================================
 if user_input:
-    # 先显示用户的消息（在右侧）
+    # -------- 第 8.1 步：显示用户的消息 --------
+    # 先把用户的消息显示出来
     with st.chat_message("user"):
         st.markdown(user_input)
     
-    # 把用户消息存入"记忆盒"
+    # -------- 第 8.2 步：保存用户消息 --------
+    # 把用户的消息存到"记忆盒子"里
     st.session_state.messages.append({
-        "role": "user",
-        "content": user_input
+        "role": "user",           # "role" 表示这条消息是谁说的
+        "content": user_input      # "content" 是消息的内容
     })
+    
+    # -------- 第 8.3 步：准备发送给 AI 的消息列表 --------
+    # 我们要把整个对话历史都发给 AI，这样它才知道之前的对话内容
+    # 首先放系统设定（AI 的人设）
+    messages_for_api = [{"role": "system", "content": system_prompt}]
+    # 然后把之前的所有对话都加进去
+    for msg in st.session_state.messages:
+        messages_for_api.append({"role": msg["role"], "content": msg["content"]})
+    
+    # -------- 第 8.4 步：调用 AI --------
+    # 创建一个 AI 客户端
+    # 注意：把 "your-api-key-here" 换成你从 DeepSeek 获得的 API Key！
+    client = OpenAI(
+        api_key="your-api-key-here",  # ← 替换为你的 API Key
+        base_url="https://api.deepseek.com"  # DeepSeek 的 API 地址
+    )
+    
+    # 显示 AI 的回复区域
+    with st.chat_message("assistant"):
+        # 创建一个"空容器"，用来动态显示 AI 的回复
+        reply_container = st.empty()
+        full_reply = ""  # 初始化一个空字符串，用来累积 AI 的回复
+        
+        try:
+            # -------- 第 8.5 步：流式调用 AI（一个字一个字显示） --------
+            # stream=True 表示开启"流式输出"
+            # 意思是 AI 说一个字我们就显示一个字，就像有人在打字
+            stream = client.chat.completions.create(
+                model="deepseek-chat",        # 使用 DeepSeek 的对话模型
+                messages=messages_for_api,    # 把对话历史都发给 AI
+                stream=True                   # 开启流式输出！
+            )
+            
+            # 遍历 AI 返回的每一个"片段"
+            for chunk in stream:
+                # 检查这个片段有没有内容
+                if chunk.choices[0].delta.content:
+                    # 把新的文字加到完整回复里
+                    full_reply += chunk.choices[0].delta.content
+                    # 在页面上显示（+ "▌" 是闪烁的光标效果）
+                    reply_container.markdown(full_reply + "▌")
+            
+            # AI 说完了，去掉最后的光标
+            reply_container.markdown(full_reply)
+            
+        except Exception as e:
+            # 如果出错了，显示错误信息
+            reply_container.error(f"出错了：{e}")
+            full_reply = ""  # 出错了就把回复设为空
+    
+    # -------- 第 8.6 步：保存 AI 的回复 --------
+    # 把 AI 的回复也存到"记忆盒子"里，这样下次对话 AI 就能记住了
+    if full_reply:  # 只有当 AI 成功回复了才保存
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": full_reply
+        })
 ```
 
-#### 发送消息时，让 AI"看到"完整的对话历史
+### 3.3 运行效果截图
 
-```python
-# 调用 AI 时，把整个对话历史都传过去
-messages_for_api = [{"role": "system", "content": SYSTEM_PROMPT}]
-messages_for_api += [
-    {"role": msg["role"], "content": msg["content"]}
-    for msg in st.session_state.messages    # 用*解包*的方式，把历史消息逐条加入
-]
-messages_for_api.append({"role": "user", "content": user_input})
-```
+![应用界面](/blog/streamlit-ai-companion/initial-page.png)
 
-> **什么是解包（`*`）？**
-> 想象你有一盒水果（`st.session_state.messages`），`*` 的作用是把盒子里所有水果一个个拿出来，放在桌子上。这就是"解包"。
-
-### 3.6 流式输出——让回复"一个字一个字"地出现
-
-#### 什么是流式输出？
-
-> 普通的方式是等 AI **全部回答完**再一次性显示。流式输出则是 AI 说一个字我们就显示一个字，就像有人在实时打字一样，体验更好！
-
-```python
-# 用 stream=True 开启流式输出
-stream = client.chat.completions.create(
-    model="deepseek-chat",
-    messages=messages_for_api,
-    stream=True                    # 开启流式输出模式
-)
-
-# 创建一个"空容器"，用于动态显示 AI 的回复
-reply_container = st.empty()
-
-# 逐步接收并显示 AI 的回复
-full_reply = ""                    # 初始化一个空字符串，用来累积回复
-for chunk in stream:               # 遍历每一个"回复片段"
-    if chunk.choices[0].delta.content:
-        # 累积新的文字
-        full_reply += chunk.choices[0].delta.content
-        # 把累积的内容显示在空容器中（实现实时打字效果）
-        reply_container.markdown(full_reply + "▌")
-
-# 回复完成后，去掉最后的光标
-reply_container.markdown(full_reply)
-
-# 把 AI 的回复也存入"记忆盒"，这样下次对话时 AI 就能记住了
-st.session_state.messages.append({
-    "role": "assistant",
-    "content": full_reply
-})
-```
-
-#### 这里发生了什么？
-
-- `st.empty()`：创建一个空的"容器"，之后可以往里面放内容
-- `stream=True`：告诉 API"我要流式接收回复"
-- `for chunk in stream`：一个一个地接收回复片段
-- `full_reply += ...`：把每个片段的文字加到完整回复里
-- `"▌"`：在末尾加一个闪烁的光标字符，模拟打字效果
+![对话效果](/blog/streamlit-ai-companion/chat-demo.png)
 
 ---
 
-## 第四章：完整代码
+## 第四章：完整代码（可复制直接运行）
 
-把所有代码整合在一起，这就是我们的完整应用：
+把上面的代码整合在一起，就是可以直接运行的完整版本：
 
 ```python
+# ============================================================
+# AI 智能伴侣 - 零基础版
+# 完整可运行代码，直接复制到 app.py 即可使用
+# ============================================================
+
 import streamlit as st
 from openai import OpenAI
-import os
 
-# ==================== 1. 页面配置 ====================
+# ============================================================
+# 第 1 步：页面配置（必须放在最前面）
+# ============================================================
 st.set_page_config(
     page_title="我的 AI 伴侣",
     page_icon="🤖",
     layout="centered"
 )
 
-# ==================== 2. 初始化设置 ====================
-# 从环境变量读取 API Key（安全做法）
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "sk-your-key-here")
-client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deepseek.com")
+# ============================================================
+# 第 2 步：AI 角色设定
+# ============================================================
+system_prompt = """你是一个友善、热情的 AI 助手。
+你的风格：
+1. 用轻松友好的语气和用户聊天
+2. 回答问题耐心详细，不懂就诚实说
+3. 偶尔可以开玩笑，让对话更有趣"""
 
-SYSTEM_PROMPT = """你是一个友善、热情的 AI 助手。
-你的目标是：
-1. 准确回答用户的问题
-2. 用简单易懂的语言解释复杂概念
-3. 如果不确定，就诚实告诉用户"""
-
-# ==================== 3. 初始化会话状态 ====================
+# ============================================================
+# 第 3 步：初始化会话状态
+# ============================================================
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# ==================== 4. 页面 UI ====================
+# ============================================================
+# 第 4 步：页面 UI
+# ============================================================
 st.title("🤖 我的 AI 伴侣")
 st.markdown("—— 基于 DeepSeek v4-flash 构建的智能对话助手")
 st.divider()
 
-# ==================== 5. 显示历史消息 ====================
+# 显示历史消息
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# ==================== 6. 输入框 & 发送请求 ====================
+# ============================================================
+# 第 5 步：输入框 & AI 对话
+# ============================================================
 user_input = st.chat_input(placeholder="请输入你的问题...")
 
 if user_input:
-    # ① 显示用户消息
+    # 显示并保存用户消息
     with st.chat_message("user"):
         st.markdown(user_input)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # ② 构建消息历史
-    messages_for_api = [{"role": "system", "content": SYSTEM_PROMPT}]
-    messages_for_api += [
-        {"role": msg["role"], "content": msg["content"]}
-        for msg in st.session_state.messages
-    ]
+    # 准备发送给 API 的消息列表
+    messages_for_api = [{"role": "system", "content": system_prompt}]
+    for msg in st.session_state.messages:
+        messages_for_api.append({"role": msg["role"], "content": msg["content"]})
 
-    # ③ 流式调用 AI
+    # 创建 AI 客户端（替换为你的 API Key）
+    client = OpenAI(
+        api_key="your-api-key-here",  # ← 替换为你的 DeepSeek API Key
+        base_url="https://api.deepseek.com"
+    )
+
+    # 流式调用 AI
     with st.chat_message("assistant"):
         reply_container = st.empty()
         full_reply = ""
@@ -412,10 +375,12 @@ if user_input:
             reply_container.error(f"出错了：{e}")
             full_reply = ""
 
-    # ④ 保存 AI 回复
+    # 保存 AI 回复
     if full_reply:
         st.session_state.messages.append({"role": "assistant", "content": full_reply})
 ```
+
+> **如何使用**：把上面的代码完整复制到 `app.py` 文件中，**把 `your-api-key-here` 替换成你从 DeepSeek 获得的 API Key**，然后运行 `streamlit run app.py` 即可！
 
 ---
 
@@ -431,11 +396,7 @@ streamlit run app.py
 
 几秒钟后，浏览器会自动打开，你就能看到自己的 AI 对话应用了！
 
-### 5.2 效果预览
-
-![应用界面](https://www.coze.site/snapshots/20250612162300.png)
-
-### 5.3 修改代码后刷新
+### 5.2 修改代码后刷新
 
 修改 `app.py` 的代码后，页面会自动刷新，不需要重启服务。
 
@@ -443,7 +404,7 @@ streamlit run app.py
 
 ---
 
-## 常见问题 & 踩坑提醒
+## 第六章：常见问题 & 踩坑提醒
 
 ### Q1：运行 `streamlit run app.py` 报错 `command not found`
 **原因**：pip 安装 Streamlit 时出错，或者 Python 环境变量没有配置好。
@@ -466,20 +427,58 @@ pip install streamlit
 **原因**：可能是 API Key 没有正确读取，或者网络连接问题。
 
 **解决方法**：
-1. 在代码里临时直接写 Key 测试（仅开发环境）
+1. 确认代码中的 API Key 已替换为你的真实 Key
 2. 检查网络连接
 3. 查看终端里的错误日志
 
-### Q4：回复速度很慢
-**原因**：可能是模型选择不对，或者网络延迟。
-
-**解决方法**：
-1. 确认使用的是 `deepseek-chat` 模型（v4-flash 版本）
-2. 降低 `max_tokens` 参数
-3. 尝试使用代理或更好的网络
-
-### Q5：如何停止运行？
+### Q4：如何停止运行？
 **方法**：在终端按 `Ctrl + C`
+
+---
+
+## 第七章：后续计划 🚀
+
+> 恭喜你完成了第一个版本！🎉 这只是一个开始，接下来我们还会继续升级这个应用。
+
+### 7.1 添加对话侧边栏
+
+**目标**：支持在不同对话之间切换，就像微信可以创建多个聊天窗口一样。
+
+**功能预览**：
+- 在页面左侧添加一个侧边栏
+- 显示所有历史对话列表
+- 点击可以切换到不同的对话
+- 支持创建新的对话
+
+**为什么需要**：目前每次打开页面都会重新开始，无法查看之前的对话。加了侧边栏就能像真正的聊天软件一样，随时切换到任何一个历史对话。
+
+### 7.2 会话管理
+
+**目标**：创建、切换、删除对话，全部都能自己控制。
+
+**功能预览**：
+- 点击"新建对话"按钮开始一个新话题
+- 给对话起个名字，方便识别
+- 删除不需要的对话
+- 切换对话时自动保存当前位置
+
+**为什么需要**：想象你用 AI 学习编程、聊天解闷、写作辅助——这些是不同的场景，放在一个对话里会乱。会话管理让你可以井井有条地处理各种需求。
+
+### 7.3 会话持久化存储
+
+**目标**：把对话记录保存到文件里，下次打开应用可以恢复。
+
+**功能预览**：
+- 对话数据保存为 JSON 文件
+- 重新打开应用自动加载历史记录
+- 不再担心刷新页面丢失对话
+
+**技术思路**（先剧透一下）：
+- 用 Python 的 `json` 模块读写文件
+- 每个对话保存为一个 `.json` 文件
+- 文件名可以用时间戳或对话标题命名
+
+> **预告**：下一期教程我们就会实现这些功能！敬请期待~
 
 ---
 
@@ -495,6 +494,9 @@ pip install streamlit
 - 会话状态管理（AI 的"记忆"）
 - 流式输出的原理
 
-继续探索，你还可以为它添加：语音输入、图片识别、更多对话角色设定……可能性是无穷的！
+**这只是开始**！我们的 AI 智能伴侣还会继续进化：
+- 会话管理（多个对话随时切换）
+- 历史记录保存（刷新也不丢）
+- 更多有趣的 AI 能力
 
-> **下一步**：试着给 AI 添加一个"角色切换"功能，让用户可以选择不同的对话风格吧！
+继续探索，你还可以为它添加：语音输入、图片识别、更多对话角色设定……可能性是无穷的！

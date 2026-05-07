@@ -105,7 +105,7 @@ user_input = st.text_input(
 import os
 
 # 从环境变量读取，第二个参数为默认值（仅本地开发用）
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "your-api-key-here")
 if not DEEPSEEK_API_KEY:
     st.error("请设置 DEEPSEEK_API_KEY 环境变量")
     st.stop()
@@ -222,6 +222,12 @@ with st.chat_message("assistant"):
 | `max_tokens` | 最大生成 token 数 | 1000-2000 |
 | `temperature` | 创造性/确定性 | 0.7（日常对话） |
 
+### 3.6 运行效果截图
+
+![应用界面](/blog/streamlit-ai-companion/initial-page.png)
+
+![对话效果](/blog/streamlit-ai-companion/chat-demo.png)
+
 ---
 
 ## 四、完整代码
@@ -239,7 +245,9 @@ st.set_page_config(
 )
 
 # ========== 2. 初始化 ==========
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+# 从环境变量读取 API Key（生产环境必须使用）
+# 开发测试时可以直接填入你的 Key
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "your-api-key-here")
 if not DEEPSEEK_API_KEY:
     st.error("请设置 DEEPSEEK_API_KEY 环境变量")
     st.stop()
@@ -308,6 +316,8 @@ if user_input:
         st.session_state.messages.append({"role": "assistant", "content": full_reply})
 ```
 
+> **如何使用**：把上面的代码复制到 `app.py`，将 `your-api-key-here` 替换为你的 DeepSeek API Key，然后运行 `streamlit run app.py`
+
 ---
 
 ## 五、运行与部署
@@ -320,11 +330,7 @@ streamlit run app.py
 
 浏览器会自动打开，默认地址：`http://localhost:8501`
 
-### 5.2 效果预览
-
-![应用界面](https://www.coze.site/snapshots/20250612162300.png)
-
-### 5.3 实用 Tips
+### 5.2 实用 Tips
 
 **环境变量持久化**：在项目根目录创建 `.env` 文件：
 ```
@@ -348,7 +354,7 @@ if "current_role" not in st.session_state:
 
 **异常处理**：生产环境务必捕获 API 异常，包括网络超时、API 限流（429）、Key 失效（401）等。
 
-### 5.4 部署选项
+### 5.3 部署选项
 
 | 方案 | 成本 | 适用场景 |
 |------|------|----------|
@@ -376,3 +382,128 @@ if st.button("🗑️ 清空对话"):
     st.session_state.messages = []
     st.rerun()
 ```
+
+---
+
+## 七、后续计划 🚀
+
+> 这只是 MVP 版本！我们的 AI 智能伴侣还有很大的进化空间。
+
+### 7.1 对话侧边栏
+
+**目标**：实现多会话管理，支持在不同对话之间切换。
+
+**实现思路**：
+- 使用 `st.sidebar` 创建侧边栏区域
+- 在侧边栏显示会话列表
+- 点击切换当前活跃会话
+- 添加"新建会话"按钮
+
+**技术要点**：
+```python
+# 侧边栏基础结构
+with st.sidebar:
+    st.title("会话列表")
+    if st.button("➕ 新建对话"):
+        # 创建新会话
+        pass
+    # 遍历显示历史会话
+    for session in sessions:
+        if st.button(session["title"]):
+            # 切换到该会话
+            pass
+```
+
+### 7.2 会话管理
+
+**目标**：完整的 CRUD 操作——创建、读取、更新、删除会话。
+
+**功能清单**：
+- 新建对话（自动生成时间戳标题）
+- 重命名对话
+- 删除对话（带确认提示）
+- 切换对话（保留当前位置）
+
+**状态管理扩展**：
+```python
+# 扩展 session_state 结构
+if "sessions" not in st.session_state:
+    st.session_state.sessions = [{"id": "default", "title": "默认对话", "messages": []}]
+
+if "current_session_id" not in st.session_state:
+    st.session_state.current_session_id = "default"
+```
+
+### 7.3 会话持久化
+
+**目标**：将会话数据保存到本地文件，实现真正的数据持久化。
+
+**实现方案**：
+- 使用 JSON 文件存储会话数据
+- 每个会话保存为独立文件：`sessions/{session_id}.json`
+- 启动时自动加载历史会话
+- 每次对话后自动保存
+
+**核心代码思路**：
+```python
+import json
+import os
+from datetime import datetime
+
+SESSIONS_DIR = "sessions"
+
+def save_session(session_id: str, messages: list):
+    """保存会话到 JSON 文件"""
+    os.makedirs(SESSIONS_DIR, exist_ok=True)
+    filepath = os.path.join(SESSIONS_DIR, f"{session_id}.json")
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump({"messages": messages, "updated_at": datetime.now().isoformat()}, f, ensure_ascii=False, indent=2)
+
+def load_sessions() -> dict:
+    """从文件加载所有会话"""
+    sessions = {}
+    if os.path.exists(SESSIONS_DIR):
+        for filename in os.listdir(SESSIONS_DIR):
+            if filename.endswith(".json"):
+                session_id = filename[:-5]
+                filepath = os.path.join(SESSIONS_DIR, session_id + ".json")
+                with open(filepath, "r", encoding="utf-8") as f:
+                    sessions[session_id] = json.load(f)
+    return sessions
+```
+
+**数据格式示例**：
+```json
+{
+  "id": "20250607-143022",
+  "title": "Python 编程问题",
+  "messages": [
+    {"role": "user", "content": "如何理解 Python 的装饰器？"},
+    {"role": "assistant", "content": "装饰器是 Python 的一个强大特性..."}
+  ],
+  "created_at": "2026-06-07T14:30:22",
+  "updated_at": "2026-06-07T14:32:15"
+}
+```
+
+> **预告**：下一期教程我们将实现完整的会话管理系统，敬请期待！
+
+---
+
+## 八、结语
+
+恭喜你完成了基础版 AI 对话应用的搭建！🎉
+
+**已掌握的技能**：
+- Streamlit 页面配置与组件使用
+- OpenAI SDK 调用 DeepSeek API
+- `st.session_state` 会话状态管理
+- 流式输出的实现原理
+
+**下一步探索方向**：
+- 多会话侧边栏（即将推出）
+- 会话持久化存储
+- 语音输入/图片识别
+- 自定义 AI 角色
+
+继续加油，AI 应用开发的世界很精彩！
