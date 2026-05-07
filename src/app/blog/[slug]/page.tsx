@@ -40,6 +40,15 @@ interface Post {
 // 支持版本切换的文章 slug 列表
 const MULTI_VERSION_SLUGS = ['streamlit-ai-companion'];
 
+// 本地文章（不依赖 Supabase）
+const LOCAL_POSTS_MAP: Record<string, { title: string; excerpt: string; tags: string[] }> = {
+  'streamlit-ai-companion': {
+    title: '用 Streamlit 快速搭建一个 AI 智能伴侣项目',
+    excerpt: '基于 Streamlit + DeepSeek v4-flash，从零构建一个完整的 AI 对话应用，支持多轮对话、流式输出，提供三个难度版本。',
+    tags: ['Streamlit', 'DeepSeek', 'Python', 'AI'],
+  },
+};
+
 function BlogDetailContent() {
   const params = useParams();
   const slug = params.slug as string;
@@ -66,26 +75,31 @@ function BlogDetailContent() {
   const loadPost = async () => {
     setIsLoading(true);
     setError('');
+    
+    // 本地文章优先：直接加载，不走 API
+    const localInfo = LOCAL_POSTS_MAP[slug];
+    if (localInfo) {
+      setIsLocalContent(true);
+      setPost({
+        id: 'local-' + slug,
+        slug,
+        title: localInfo.title,
+        content: null,
+        markdown: BLOG_CONTENT[currentVersion],
+        excerpt: localInfo.excerpt,
+        tags: localInfo.tags,
+        published_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        views: 0,
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // 远程文章走 API
     try {
       const res = await fetch(`/api/posts/${slug}`);
       if (!res.ok) {
-        if (res.status === 404 && isMultiVersion) {
-          setIsLocalContent(true);
-          setPost({
-            id: 'local',
-            slug,
-            title: '用 Streamlit 快速搭建一个 AI 智能伴侣项目',
-            content: null,
-            markdown: BLOG_CONTENT[currentVersion],
-            excerpt:
-              '基于 Streamlit + DeepSeek v4-flash，从零构建一个完整的 AI 对话应用，支持三个难度版本。',
-            tags: ['Streamlit', 'DeepSeek', 'Python', 'AI'],
-            published_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            views: 0,
-          });
-          return;
-        }
         setError(res.status === 404 ? '文章不存在' : '加载失败');
         return;
       }
@@ -93,23 +107,6 @@ function BlogDetailContent() {
       setPost(data.post);
       setIsLocalContent(false);
     } catch (e) {
-      if (isMultiVersion) {
-        setIsLocalContent(true);
-        setPost({
-          id: 'local',
-          slug,
-          title: '用 Streamlit 快速搭建一个 AI 智能伴侣项目',
-          content: null,
-          markdown: BLOG_CONTENT[currentVersion],
-          excerpt:
-            '基于 Streamlit + DeepSeek v4-flash，从零构建一个完整的 AI 对话应用，支持三个难度版本。',
-          tags: ['Streamlit', 'DeepSeek', 'Python', 'AI'],
-          published_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          views: 0,
-        });
-        return;
-      }
       setError('加载失败');
     } finally {
       setIsLoading(false);
