@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { BLOG_CONTENT } from '@/content/blog/streamlit-ai-companion/content';
 
 interface Post {
   id: string;
@@ -19,6 +20,20 @@ interface Post {
   updated_at: string;
   views: number;
 }
+
+// 本地文章（不依赖 Supabase）
+const LOCAL_POSTS: Post[] = [
+  {
+    id: 'local-streamlit-ai-companion',
+    slug: 'streamlit-ai-companion',
+    title: '用 Streamlit 快速搭建一个 AI 智能伴侣项目',
+    excerpt: '基于 Streamlit + DeepSeek v4-flash，从零构建一个完整的 AI 对话应用，支持多轮对话、流式输出，提供三个难度版本。',
+    tags: ['Streamlit', 'DeepSeek', 'Python', 'AI'],
+    published_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    views: 0,
+  },
+];
 
 function BlogContent() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -34,9 +49,16 @@ function BlogContent() {
     try {
       const res = await fetch('/api/posts');
       const data = await res.json();
-      setPosts(data.posts || []);
+      const remotePosts: Post[] = data.posts || [];
+      // 合并本地文章，避免重复
+      const remoteSlugs = new Set(remotePosts.map(p => p.slug));
+      const merged = [...remotePosts, ...LOCAL_POSTS.filter(p => !remoteSlugs.has(p.slug))];
+      merged.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+      setPosts(merged);
     } catch (e) {
       console.error('Failed to load posts:', e);
+      // API 失败时至少显示本地文章
+      setPosts(LOCAL_POSTS);
     } finally {
       setIsLoading(false);
     }
