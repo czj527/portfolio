@@ -20,6 +20,7 @@ export type TimePeriod = 'morning' | 'noon' | 'afternoon' | 'night';
 interface AppSettings {
   themeMode: ThemeMode;
   particleEffects: boolean;
+  weatherEffects: boolean;
 }
 
 interface AppState {
@@ -37,6 +38,7 @@ interface AppState {
 const DEFAULT_SETTINGS: AppSettings = {
   themeMode: 'realtime',
   particleEffects: true,
+  weatherEffects: true,
 };
 
 // Get current season based on month

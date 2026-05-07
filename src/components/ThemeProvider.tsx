@@ -125,11 +125,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         resolved = getTimeBasedTheme();
     }
 
-    // Apply theme with weather info
+    // Apply theme with weather info (only if weatherEffects enabled)
     applyTheme(
       resolved,
-      weather?.weatherType,
-      weather?.isWindy
+      settings.weatherEffects ? weather?.weatherType : undefined,
+      settings.weatherEffects ? weather?.isWindy : undefined
     );
 
     // Sync store for other components

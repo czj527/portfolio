@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/store';
-import { Sun, Moon, Sparkles, Leaf, Snowflake, Flame } from 'lucide-react';
+import { Sun, Moon, Sparkles, Leaf, Snowflake, Flame, CloudRain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const themeOptions = [
@@ -122,6 +122,33 @@ export function ThemeToggle() {
                   )}>
                     <motion.div
                       animate={{ x: settings.particleEffects ? 16 : 0 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      className="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow"
+                    />
+                  </div>
+                </motion.button>
+                
+                {/* Weather effects toggle */}
+                <motion.button
+                  whileHover={{ x: 4 }}
+                  onClick={() => {
+                    updateSettings({ weatherEffects: !settings.weatherEffects });
+                  }}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                    settings.weatherEffects
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                  )}
+                >
+                  <CloudRain className="w-4 h-4" />
+                  <span className="flex-1 text-left">天气效果</span>
+                  <div className={cn(
+                    'w-8 h-4 rounded-full relative transition-colors',
+                    settings.weatherEffects ? 'bg-primary' : 'bg-muted'
+                  )}>
+                    <motion.div
+                      animate={{ x: settings.weatherEffects ? 16 : 0 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                       className="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow"
                     />
