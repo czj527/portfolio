@@ -200,23 +200,23 @@ export function AboutSection() {
   const experiences = [
     {
       year: '2024 - 至今',
-      title: 'AI辅助前端开发实习生',
+      title: 'AI辅助前端开发实习',
       company: '某科技公司',
-      description: '负责使用AI工具辅助前端开发，优化开发流程，提升团队效率。',
+      description: 'AI工具辅助前端开发，优化开发流程。',
       icon: '💼',
     },
     {
-      year: '2022 - 2024',
-      title: '全栈开发学习',
+      year: '2023 - 2024',
+      title: '全栈开发实践',
       company: '武汉工程大学',
-      description: '深入学习全栈开发技术，完成多个实战项目，积累项目经验。',
+      description: '深入学习全栈技术，完成多个实战项目。',
       icon: '🎓',
     },
     {
-      year: '2020 - 2022',
-      title: '前端开发入门',
+      year: '2022 - 2023',
+      title: '编程入门',
       company: '个人学习',
-      description: '从HTML、CSS、JavaScript开始，逐步学习React等现代前端框架。',
+      description: '从HTML、CSS、JavaScript开始学习编程。',
       icon: '🚀',
     },
   ];
@@ -314,7 +314,7 @@ export function AboutSection() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
             <div>
               <h3 className="text-xl font-bold">武汉工程大学</h3>
-              <p className="text-muted-foreground">计算机科学与技术专业</p>
+              <p className="text-muted-foreground">信息管理与信息系统专业</p>
             </div>
             <span className="text-sm text-primary font-medium mt-2 md:mt-0">
               2022 - 2026（在读）

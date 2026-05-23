@@ -308,7 +308,7 @@ export function SeasonParticles() {
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+      className="fixed inset-0 pointer-events-none z-0 overflow-visible"
       aria-hidden="true"
     >
       {/* Lightning overlay for thunderstorm */}

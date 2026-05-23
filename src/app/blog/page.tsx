@@ -29,7 +29,7 @@ const LOCAL_POSTS: Post[] = [
     title: '用 Streamlit 快速搭建一个 AI 智能伴侣项目',
     excerpt: '基于 Streamlit + DeepSeek v4-flash，从零构建一个完整的 AI 对话应用，支持多轮对话、流式输出，提供三个难度版本。',
     tags: ['Streamlit', 'DeepSeek', 'Python', 'AI'],
-    published_at: new Date().toISOString(),
+    published_at: '2026-05-10T00:00:00+08:00',
     updated_at: new Date().toISOString(),
     views: 0,
   },
