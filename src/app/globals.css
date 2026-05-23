@@ -306,26 +306,7 @@ html {
 }
 
 /* ==================== Season Particle Animations ==================== */
-
-@keyframes seasonFall {
-  0% {
-    transform: translateY(-10vh) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(50vh) translateX(calc(var(--sp-drift, 15px) + 15px)) rotate(180deg);
-  }
-  90% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(110vh) translateX(calc(var(--sp-drift, 15px) - 10px)) rotate(360deg);
-    opacity: 0;
-  }
-}
+/* Animations are now inline in SeasonParticles component */
 
 @keyframes aurora {
   0%, 100% {
@@ -515,91 +496,7 @@ html {
 }
 
 /* ==================== Weather Particle Animations ==================== */
-
-/* Rain drops - CSS gradient lines falling from top */
-@keyframes rainFall {
-  0% {
-    transform: translateY(-10vh) rotate(var(--rain-angle, 0deg));
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(110vh) rotate(var(--rain-angle, 0deg));
-    opacity: 0;
-  }
-}
-
-.rain-drop {
-  background: linear-gradient(to bottom, transparent, rgba(150, 200, 255, 0.7));
-  animation: rainFall linear infinite;
-}
-
-/* Lightning flash for thunderstorm */
-@keyframes lightning {
-  0%, 90%, 100% {
-    opacity: 0;
-  }
-  92%, 94%, 96% {
-    opacity: 0.3;
-  }
-  93%, 95% {
-    opacity: 0;
-  }
-}
-
-.weather-thunderstorm::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: white;
-  pointer-events: none;
-  animation: lightning 8s infinite;
-  z-index: 9999;
-}
-
-/* Snow dot animation - slow falling with horizontal drift */
-@keyframes snowFall {
-  0% {
-    transform: translateY(-10vh) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  50% {
-    transform: translateY(50vh) translateX(calc(var(--sp-drift, 10px) + 20px)) rotate(180deg);
-  }
-  90% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(110vh) translateX(calc(var(--sp-drift, 10px) - 10px)) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-.snow-dot {
-  animation: snowFall ease-in-out infinite;
-}
-
-/* ==================== Weather Particle Styles ==================== */
-
-/* Snowy weather enhancement */
-.weather-snowy .snow-particle {
-  animation-name: snowFall;
-  animation-timing-function: ease-in-out;
-}
-
-/* Apply horizontal drift from CSS variable */
-.season-particle {
-  animation: seasonFall ease-in-out infinite;
-}
-
-.snow-particle {
-  transform: translateX(var(--sp-drift, 0));
-}
+/* Animations are now inline in SeasonParticles component */
 
 /* ==================== Code Block Styling ==================== */
 
