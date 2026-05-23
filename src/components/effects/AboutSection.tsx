@@ -321,8 +321,7 @@ export function AboutSection() {
             </span>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            系统学习数据结构、算法、计算机网络、操作系统等核心课程。
-            同时积极参与各类技术社团和项目实践，提升实际开发能力。
+            信息管理与信息系统专业，关注技术与业务的结合。
           </p>
         </motion.div>
       </section>
