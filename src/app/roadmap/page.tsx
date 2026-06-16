@@ -24,13 +24,6 @@ export default async function RoadmapPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  // 获取近期活动日志
-  const { data: activities } = await supabase
-    .from('activity_log')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(20)
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
@@ -45,7 +38,6 @@ export default async function RoadmapPage() {
         <RoadmapView
           projects={projects || []}
           tasks={tasks || []}
-          activities={activities || []}
         />
       </div>
     </main>

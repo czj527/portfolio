@@ -22,14 +22,6 @@ interface Task {
   due_date?: string
 }
 
-interface Activity {
-  id: string
-  project_id: string
-  action: string
-  content: string
-  created_at: string
-}
-
 function ProgressBar({ value }: { value: number }) {
   return (
     <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
@@ -117,28 +109,9 @@ function ProjectCard({ project, tasks }: { project: Project; tasks: Task[] }) {
   )
 }
 
-function ActivityFeed({ activities }: { activities: Activity[] }) {
-  return (
-    <div className="space-y-3">
-      {activities.slice(0, 10).map((act) => (
-        <div key={act.id} className="flex items-start gap-3 text-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-slate-700 dark:text-slate-300">{act.content}</p>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {new Date(act.created_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-            </p>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-export default function RoadmapView({ projects, tasks, activities }: {
+export default function RoadmapView({ projects, tasks }: {
   projects: Project[]
   tasks: Task[]
-  activities: Activity[]
 }) {
   const active = projects.filter((p) => p.status === 'in_progress' || p.status === 'active')
   const paused = projects.filter((p) => p.status === 'paused')
@@ -179,18 +152,6 @@ export default function RoadmapView({ projects, tasks, activities }: {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {planned.map((p) => <ProjectCard key={p.id} project={p} tasks={tasks} />)}
-          </div>
-        </section>
-      )}
-
-      {activities.length > 0 && (
-        <section>
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-lg">📡</span>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">近期动态</h2>
-          </div>
-          <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50">
-            <ActivityFeed activities={activities} />
           </div>
         </section>
       )}
