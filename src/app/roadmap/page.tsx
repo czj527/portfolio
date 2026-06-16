@@ -16,13 +16,13 @@ export default async function RoadmapPage() {
   const { data: projects } = await supabase
     .from('projects')
     .select('*')
-    .order('priority', { ascending: true })
+    .order('sort_order', { ascending: true })
 
   // 获取任务（按项目分组）
   const { data: tasks } = await supabase
     .from('tasks')
     .select('*')
-    .order('priority', { ascending: true })
+    .order('created_at', { ascending: false })
 
   // 获取近期活动日志
   const { data: activities } = await supabase
