@@ -6,7 +6,7 @@
 -- 创建表
 CREATE TABLE IF NOT EXISTS project_logs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  project_id TEXT NOT NULL,
   content TEXT NOT NULL,
   type TEXT DEFAULT 'note' CHECK (type IN ('progress', 'milestone', 'note')),
   created_at TIMESTAMPTZ DEFAULT NOW()
