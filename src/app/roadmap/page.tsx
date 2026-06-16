@@ -99,47 +99,74 @@ export default function WorkflowPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" /></div>
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      {/* Top Bar */}
-      <div className="sticky top-14 z-30 border-b bg-background/80 backdrop-blur-md px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">工作流</h1>
-          <p className="text-xs text-muted-foreground">Agent 编排 · 技能 · 文档 · 自定义</p>
-        </div>
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex">
+      {/* Sidebar */}
+      <div className="w-14 flex flex-col items-center gap-2 pt-20 pb-4 border-r border-border bg-background/50">
+        <div className="flex flex-col items-center gap-2 flex-1">
           {editMode ? (
             <>
               {/* Add Menu */}
               <div className="relative">
-                <button onClick={() => setShowAddMenu(!showAddMenu)} className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-primary text-primary-foreground hover:opacity-90">
-                  <Plus className="w-4 h-4" /> 新增
+                <button onClick={() => setShowAddMenu(!showAddMenu)}
+                  className="w-10 h-10 rounded-xl bg-primary text-primary-foreground hover:opacity-90 flex items-center justify-center transition-all shadow-md"
+                  title="新增元素">
+                  <Plus className="w-5 h-5" />
                 </button>
                 <AnimatePresence>
                   {showAddMenu && (
-                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="absolute right-0 top-full mt-1 w-40 rounded-xl border bg-card shadow-xl p-1.5 z-50">
+                    <motion.div initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -4 }}
+                      className="absolute left-full top-0 ml-2 w-40 rounded-xl border bg-card shadow-xl p-1.5 z-50">
                       {(['agent', 'skill', 'document', 'custom'] as const).map(t => {
                         const d = typeDefs[t]
                         const Icon = d.icon
-                        return <button key={t} onClick={() => addNode(t)} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-accent transition-colors"><Icon className="w-4 h-4" /> {d.label}</button>
+                        return <button key={t} onClick={() => addNode(t)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-accent transition-colors"><Icon className="w-4 h-4" /> {d.label}</button>
                       })}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-              <button onClick={() => setEditMode(false)} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border"><Lock className="w-4 h-4" /> 退出</button>
             </>
-          ) : (
-            <div className="flex items-center gap-2">
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="管理密码" className="w-28 px-2 py-1.5 text-sm rounded border bg-background" onKeyDown={e => e.key === 'Enter' && unlockEdit()} />
-              <button onClick={unlockEdit} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border hover:bg-accent"><Unlock className="w-4 h-4" /> 编辑</button>
-              {authError && <span className="text-xs text-red-500">{authError}</span>}
+          ) : null}
+
+          {/* Legend */}
+          {(['agent', 'skill', 'document', 'custom'] as const).map(t => {
+            const d = typeDefs[t]
+            const Icon = d.icon
+            return <div key={t} title={d.label} className="w-8 h-8 rounded-lg border flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity" style={{ borderColor: t === 'agent' ? '#60a5fa' : t === 'skill' ? '#34d399' : t === 'document' ? '#fbbf24' : '#c084fc' }}>
+              <Icon className="w-3.5 h-3.5" />
             </div>
+          })}
+
+          {nodes.length > 0 && (
+            <div className="text-[10px] text-muted-foreground mt-2 text-center">{nodes.length}</div>
+          )}
+        </div>
+
+        {/* Auth */}
+        <div className="flex flex-col items-center gap-2">
+          {editMode ? (
+            <button onClick={() => setEditMode(false)} title="退出编辑"
+              className="w-10 h-10 rounded-xl border hover:bg-accent flex items-center justify-center transition-all">
+              <Lock className="w-4 h-4" />
+            </button>
+          ) : (
+            <>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="密码" className="w-10 text-center text-xs px-1 py-1.5 rounded-lg border bg-background"
+                onKeyDown={e => e.key === 'Enter' && unlockEdit()} />
+              <button onClick={unlockEdit} title="编辑模式"
+                className="w-10 h-10 rounded-xl border hover:bg-accent flex items-center justify-center transition-all">
+                <Unlock className="w-4 h-4" />
+              </button>
+              {authError && <span className="text-[10px] text-red-500">错误</span>}
+            </>
           )}
         </div>
       </div>
 
       {/* Canvas */}
-      <div className="relative overflow-auto" style={{ height: 'calc(100vh - 110px)' }}>
+      <div className="flex-1 relative overflow-auto" style={{ height: 'calc(100vh - 56px)' }}>
         <div className="relative" style={{ width: 1600, height: 1200, minWidth: '100%', minHeight: '100%' }}>
           {/* Grid */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.06] dark:opacity-[0.04]">
