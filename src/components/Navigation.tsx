@@ -15,7 +15,7 @@ const navItems = [
   { name: '归档', path: '/archive' },
   { name: '项目', path: '/projects' },
   { name: '任务', path: '/tasks' },
-  { name: '规划', path: '/roadmap' },
+  { name: '工作流', path: '/roadmap' },
   { name: '留言', path: '/guestbook' },
   { name: '标签', path: '/tags' },
   { name: '友链', path: '/friends' },
