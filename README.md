@@ -1,34 +1,46 @@
-# 🏠 长岛冰茶的个人博客
+# 长岛冰茶的个人博客
 
-欢迎来到我的个人空间！这是我的个人博客网站，用于展示我的项目、记录学习笔记和分享技术心得。
+基于 Next.js 16 构建的个人博客网站。项目展示、博客文章、日程管理、访客问答，一个空间承载全部。
 
-## ✨ 技术栈
+## 技术栈
 
-- **框架**: Next.js 16 (App Router)
-- **UI**: shadcn/ui + Tailwind CSS v4
+- **框架**: Next.js 16 (App Router) + React 19
 - **语言**: TypeScript
-- **部署**: GitHub Pages
+- **UI**: shadcn/ui + Tailwind CSS v4 (oklch)
+- **动画**: Framer Motion
+- **数据库**: Supabase + Prisma (SQLite)
+- **部署**: Vercel
 
-## 🚀 本地运行
+## 页面
+
+| 路由 | 说明 |
+|------|------|
+| `/` | 首页（Hero + 日程 + 问答） |
+| `/blog` | 博客列表 |
+| `/projects` | 项目展示（活跃项目优先 + 展开更多） |
+| `/roadmap` | 项目规划（进度追踪） |
+| `/tasks` | 任务看板 |
+| `/schedule` | 周日程视图 |
+| `/about` | 关于我 |
+| `/archive` | 文章归档 |
+| `/friends` | 友情链接 |
+| `/guestbook` | 留言板 |
+| `/tags` | 标签云 |
+| `/admin` | 管理后台 |
+
+## 开发者文档
+
+- [DESIGN.md](./DESIGN.md) — 设计体系（颜色、排版、动画、组件风格）
+- [AGENT.md](./AGENT.md) — AI Agent 开发指南（代码结构、API、约定）
+
+## 本地开发
 
 ```bash
-# 安装依赖
 pnpm install
-
-# 启动开发服务器
 pnpm dev
 ```
 
-## 📝 关于我
+## 相关链接
 
-- 武汉工程大学大三在读
-- AI 辅助前端开发实习生
-- 热爱前端开发和技术探索
-
-## 🔗 链接
-
-- GitHub: [czj527](https://github.com/czj527)
-
----
-
-使用 ❤️ 和 Next.js 构建
+- 网站：https://czj527.xyz
+- GitHub：https://github.com/czj527
