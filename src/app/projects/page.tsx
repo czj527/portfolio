@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Github, ExternalLink, Folder, ChevronDown } from 'lucide-react'
+import { ChevronDown, Folder } from 'lucide-react'
+import ProjectCard, { statusConfig } from '@/components/ProjectCard'
 
 interface Project {
   id: number
@@ -13,38 +14,61 @@ interface Project {
   githubUrl: string | null
   demoUrl: string | null
   order: number
-  active?: boolean
+  status?: string
   createdAt: string
+}
+
+const statusOrder: Record<string, number> = {
+  developing: 0,
+  validating: 1,
+  maintaining: 2,
+  completed: 3,
+  abandoned: 4,
+}
+
+const statusTitle: Record<string, string> = {
+  developing: '开发中',
+  validating: '验证中',
+  maintaining: '维护中',
+  completed: '已完成',
+  abandoned: '已废弃',
+}
+
+const statusIcon: Record<string, string> = {
+  developing: '🚀',
+  validating: '🧪',
+  maintaining: '🔧',
+  completed: '✅',
+  abandoned: '📦',
 }
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08 },
+    transition: { staggerChildren: 0.06 },
   },
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4 },
-  },
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 }
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [showAll, setShowAll] = useState(false)
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    developing: true,
+    validating: true,
+    maintaining: true,
+  })
 
   useEffect(() => {
     fetch('/api/projects')
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) {
-          // 按 order 排序
           data.sort((a: Project, b: Project) => a.order - b.order)
           setProjects(data)
         }
@@ -53,20 +77,27 @@ export default function ProjectsPage() {
       .finally(() => setIsLoading(false))
   }, [])
 
-  const activeProjects = projects.filter(p => p.active !== false)
-  const archivedProjects = projects.filter(p => p.active === false)
+  const grouped: Record<string, Project[]> = {}
+  for (const p of projects) {
+    const s = p.status || 'maintaining'
+    if (!grouped[s]) grouped[s] = []
+    grouped[s].push(p)
+  }
+
+  const orderedGroups = Object.keys(grouped).sort((a, b) => (statusOrder[a] ?? 9) - (statusOrder[b] ?? 9))
+
+  const toggleExpand = (s: string) => setExpanded(prev => ({ ...prev, [s]: !prev[s] }))
 
   if (isLoading) {
     return (
       <div className="pt-24 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">我的项目</h1>
-            <p className="text-xl text-muted-foreground">这里展示了我参与和开发的各种项目</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="animate-pulse p-6 rounded-2xl border border-border bg-card">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="animate-pulse p-6 rounded-xl border border-border bg-card">
                 <div className="h-12 w-12 bg-muted rounded-xl mb-4" />
                 <div className="h-4 bg-muted rounded w-3/4 mb-2" />
                 <div className="h-4 bg-muted rounded w-1/2" />
@@ -78,12 +109,23 @@ export default function ProjectsPage() {
     )
   }
 
+  if (projects.length === 0) {
+    return (
+      <div className="pt-24 pb-20 px-4">
+        <div className="max-w-6xl mx-auto text-center py-20">
+          <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
+          <p className="text-muted-foreground text-lg">暂无项目</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="pt-24 pb-20 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5 }}
         className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
@@ -91,122 +133,67 @@ export default function ProjectsPage() {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             这里展示了我参与和开发的各种项目
           </p>
+          {/* 图例 */}
+          <div className="flex flex-wrap justify-center gap-3 mt-4">
+            {Object.entries(statusConfig).map(([key, c]) => (
+              <span key={key} className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                <span className={`w-1.5 h-1.5 rounded-full ${c.color}`} />
+                {c.label}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {projects.length === 0 ? (
-          <div className="text-center py-20">
-            <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
-            <p className="text-muted-foreground text-lg">暂无项目</p>
-          </div>
-        ) : (
-          <>
-            {/* 活跃项目 */}
-            {activeProjects.length > 0 && (
-              <div className="mb-12">
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <h2 className="text-lg font-medium text-muted-foreground">正在进行</h2>
-                  <span className="text-sm text-muted-foreground/50">({activeProjects.length})</span>
-                </div>
-                <motion.div
-                  variants={containerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: '-50px' }}
-                  className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-                >
-                  {activeProjects.map((project) => (
-                    <ProjectCard key={project.id} project={project} />
-                  ))}
-                </motion.div>
-              </div>
-            )}
+        <div className="space-y-8">
+          {orderedGroups.map(status => {
+            const list = grouped[status]
+            const isExpanded = expanded[status] ?? true
+            const statusLabel = statusTitle[status] || status
 
-            {/* 展开归档项目 */}
-            {archivedProjects.length > 0 && (
-              <div className="mt-6">
+            return (
+              <section key={status}>
                 <button
-                  onClick={() => setShowAll(!showAll)}
-                  className="group flex items-center gap-2 mx-auto px-6 py-3 rounded-xl border border-border bg-card/50 hover:bg-card hover:border-primary/30 transition-all duration-300"
+                  onClick={() => toggleExpand(status)}
+                  className="flex items-center gap-2 mb-4 group cursor-pointer w-full text-left"
                 >
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">
-                    {showAll ? '收起' : `查看更多项目（${archivedProjects.length}）`}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground group-hover:text-foreground transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
+                  <span className="text-lg">{statusIcon[status] || '📌'}</span>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    {statusLabel}
+                  </h2>
+                  <span className="text-sm text-slate-400">({list.length})</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isExpanded ? '' : '-rotate-90'}`} />
                 </button>
 
                 <AnimatePresence>
-                  {showAll && (
+                  {isExpanded && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.4 }}
+                      transition={{ duration: 0.3 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-8 mb-2">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="w-2 h-2 rounded-full bg-slate-400" />
-                          <h2 className="text-lg font-medium text-muted-foreground">归档项目</h2>
-                          <span className="text-sm text-muted-foreground/50">({archivedProjects.length})</span>
-                        </div>
-                        <motion.div
-                          variants={containerVariants}
-                          initial="hidden"
-                          whileInView="visible"
-                          viewport={{ once: true }}
-                          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-                        >
-                          {archivedProjects.map((project) => (
-                            <ProjectCard key={project.id} project={project} />
-                          ))}
-                        </motion.div>
-                      </div>
+                      <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
+                      >
+                        {list.map(p => (
+                          <motion.div key={p.id} variants={itemVariants}>
+                            <ProjectCard project={p} />
+                          </motion.div>
+                        ))}
+                      </motion.div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
-            )}
-          </>
-        )}
+              </section>
+            )
+          })}
+        </div>
       </motion.div>
     </div>
-  )
-}
-
-function ProjectCard({ project }: { project: Project }) {
-  return (
-    <motion.div
-      variants={itemVariants}
-      whileHover={{ y: -4 }}
-      className={`group p-6 rounded-2xl border border-border bg-card hover:shadow-xl hover:border-primary/30 transition-all duration-500 ${!project.active ? 'opacity-70' : ''}`}
-    >
-      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-        <Folder className="w-6 h-6 text-primary" />
-      </div>
-      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
-      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{project.description}</p>
-      {project.techStack && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.techStack.split(',').map((tech) => (
-            <span key={tech} className="px-2.5 py-1 text-xs rounded-md bg-muted text-muted-foreground font-mono">
-              {tech.trim()}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="flex items-center gap-4 pt-4 border-t border-border">
-        {project.githubUrl && (
-          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <Github className="w-4 h-4" /> GitHub
-          </a>
-        )}
-        {project.demoUrl && (
-          <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <ExternalLink className="w-4 h-4" /> Demo
-          </a>
-        )}
-      </div>
-    </motion.div>
   )
 }

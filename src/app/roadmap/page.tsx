@@ -1,5 +1,3 @@
-import { getSupabaseAdmin } from '@/lib/supabase'
-import RoadmapView from './roadmap-view'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -7,23 +5,7 @@ export const metadata: Metadata = {
   description: '项目规划与进度追踪',
 }
 
-export const dynamic = 'force-dynamic'
-
-export default async function RoadmapPage() {
-  const supabase = getSupabaseAdmin()
-
-  // 获取项目列表
-  const { data: projects } = await supabase
-    .from('projects')
-    .select('*')
-    .order('sort_order', { ascending: true })
-
-  // 获取任务（按项目分组）
-  const { data: tasks } = await supabase
-    .from('tasks')
-    .select('*')
-    .order('created_at', { ascending: false })
-
+export default function RoadmapPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
@@ -35,10 +17,12 @@ export default async function RoadmapPage() {
             项目进度 · 里程碑 · 下一步行动
           </p>
         </header>
-        <RoadmapView
-          projects={projects || []}
-          tasks={tasks || []}
-        />
+
+        <div className="text-center py-20">
+          <p className="text-4xl mb-4">🚧</p>
+          <p className="text-xl font-medium text-slate-700 dark:text-slate-300 mb-2">规划页面改造中</p>
+          <p className="text-sm text-slate-400">全新的项目规划体验即将上线</p>
+        </div>
       </div>
     </main>
   )
