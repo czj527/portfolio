@@ -51,7 +51,14 @@ async function execute(table: string, action: string, data?: any, filters?: any)
       break
     case 'delete':
       query = supabase.from(table).delete()
-      if (filters?.eq) for (const [k, v] of Object.entries(filters.eq)) query = query.eq(k, v)
+      if (filters?.all) {
+        // 清空整表
+        query = query.neq('id', '00000000-0000-0000-0000-000000000000')
+      } else if (filters?.eq) {
+        for (const [k, v] of Object.entries(filters.eq)) query = query.eq(k, v)
+      } else {
+        throw new Error('DELETE requires filters (use filters.all=true to clear table, or filters.eq for specific records)')
+      }
       break
     case 'upsert':
       query = supabase.from(table).upsert(data, { onConflict: filters?.onConflict }).select()

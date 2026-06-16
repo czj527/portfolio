@@ -1,0 +1,20 @@
+{
+  "table": "projects",
+  "action": "insert",
+  "data": [
+    {
+      "name": "新叶日报",
+      "description": "AI资讯聚合平台",
+      "progress": 15,
+      "status": "in_progress",
+      "current_phase": "本地开发中"
+    },
+    {
+      "name": "opencolorful",
+      "description": "个人 AI 智能体项目",
+      "progress": 10,
+      "status": "in_progress",
+      "current_phase": "架构设计阶段"
+    }
+  ]
+}
