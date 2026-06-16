@@ -89,7 +89,7 @@ export default function ProjectCard({ project }: { project: ProjectData }) {
           </a>
         )}
         <Link
-          href={`/projects/${project.id}/logs`}
+          href={`/project-logs/${project.id}`}
           className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-primary transition-colors ml-auto"
         >
           <MessageSquare className="w-4 h-4" />
